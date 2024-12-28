@@ -62,17 +62,17 @@ During the game, the following rules apply:
 
 **Mode-Players-Difficulty** where,
 
-*Mode* - One of the 2 Game Modes of AquaPipe: 3x3 or 4x4
-*Players (or F/S)* - Can be h/h, h/pc, pc/h, pc/pc, where h -> Human, pc -> Computer
-*Difficulty* - represents the difficulty of the PC, it can be Random, Greedy or Minimax
+- *Mode* - One of the 2 Game Modes of AquaPipe: 3x3 or 4x4
+- *Players (or F/S)* - Can be h/h, h/pc, pc/h, pc/pc, where h -> Human, pc -> Computer
+- *Difficulty* - represents the difficulty of the PC, it can be Random, Greedy or Minimax
 
 ### Internal Game State Representation
 
 **Mode-F/S-Difficulty-Board-P-Color** where,
 
-*Mode* - One of the 2 Game Modes of AquaPipe: 3x3 or 4x4
-*F* - First Player (h or pc) with color blue
-*S* - Second Player (h or pc) with color red
-*Difficulty* - represents the difficulty of the PC, it can be Random, Greedy or Minimax
-*Board* - Bi-dimensional list of 3x3 or 4x4 size, depends on Game Mode
-*P* - Player to play on the current turn (F on the first turn)
+- *Mode* - One of the 2 Game Modes of AquaPipe: 3x3 or 4x4
+- *F* - First Player (h or pc) with color blue
+- *S* - Second Player (h or pc) with color red
+- *Difficulty* - represents the difficulty of the PC, it can be Random, Greedy or Minimax
+- *Board* - Bi-dimensional list of 3x3 or 4x4 size, depends on Game Mode
+- *P* - Player to play on the current turn (F on the first turn)
