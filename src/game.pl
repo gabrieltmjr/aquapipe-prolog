@@ -51,9 +51,11 @@ Game Loop:
 
 */
 
+:- include('move.pl').
+
 turn(Player, GameState, NewGameState) :-
-    display_game(GameState).
-    input_move(Player, Move).
+    display_game(GameState),
+    input_move(Player, Move),
     validate_move(GameState, Move).
 
 game_loop(Player, GameState) :-
