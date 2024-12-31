@@ -125,7 +125,7 @@ valid_move('3x3'-F/S-Level-Board-CurrentPlayer-PossibleMoves, CurrentPlayer-Pipe
     nth1(SRow, Board, Row_),
     nth1(SCol, Row_, Col_),
     nth1(Slot, Col_, Value),
-    Value == e, % problem is when this fails
+    Value == e,
     pipe('3x3', PipeType, Slot),
     PipeIndex is Slot.
 
