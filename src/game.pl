@@ -27,9 +27,10 @@ initial_state(Mode-F/S-Level,
     Mode == '3x3'.
 
 initial_state(Mode-F/S-Level, 
-              Mode-F/S-Level-[[[e,e,e,e],[e,e,e,e],[e,e,e,e]],
-                                            [[e,e,e,e],[e,e,e,e],[e,e,e,e]],
-                                            [[e,e,e,e],[e,e,e,e],[e,e,e,e]]]-F-PossibleMoves) :-
+              Mode-F/S-Level-[[[e,e,e,e],[e,e,e,e],[e,e,e,e],[e,e,e,e]],
+                                            [[e,e,e,e],[e,e,e,e],[e,e,e,e],[e,e,e,e]],
+                                            [[e,e,e,e],[e,e,e,e],[e,e,e,e],[e,e,e,e]],
+                                            [[e,e,e,e],[e,e,e,e],[e,e,e,e],[e,e,e,e]]]-F-PossibleMoves) :-
     var(GameState),
     Mode == '4x4'.
 
