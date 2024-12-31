@@ -64,7 +64,7 @@ During the game, the following rules apply:
 
 - *Mode* - One of the 2 Game Modes of AquaPipe: 3x3 or 4x4
 - *Players (or F/S)* - Can be h/h, h/pc, pc/h, pc/pc, where h -> Human, pc -> Computer
-- *Difficulty* - represents the difficulty of the PC, it can be Random, Greedy or Minimax
+- *Level* - represents the level of the PC, it can be Random, Greedy or Minimax
 
 ### Internal Game State Representation
 
@@ -73,6 +73,16 @@ During the game, the following rules apply:
 - *Mode* - One of the 2 Game Modes of AquaPipe: 3x3 or 4x4
 - *F* - First Player (h or pc) with color blue
 - *S* - Second Player (h or pc) with color red
-- *Difficulty* - represents the difficulty of the PC, it can be Random, Greedy or Minimax
+- *Level* - represents the level of the PC, it can be Random, Greedy or Minimax
 - *Board* - Bi-dimensional list of 3x3 or 4x4 size, depends on Game Mode
 - *P* - Player to play on the current turn (F on the first turn)
+- *PossibleMoves* - list with the moves that can be made by P on the current game state
+
+### Move Representation
+
+**CurrentPlayer-Pipe-SRow/SCol-DRow/DCol** where,
+
+- *CurrentPlayer*: player that executed the move.
+- *Pipe (PipeType/PipeIndex)*: size of the pipe that was placed/moved (s, m, l, mup or lup) and its index (1, 2, 3 or 4)
+- *SRow* & *SCol*: source position in the board where the move is made.
+- *DRow* & *DCol* : destination position in the board where the move is made (applicable if U pipe, n otherwise)

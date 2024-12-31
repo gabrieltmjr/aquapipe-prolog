@@ -1,53 +1,41 @@
-:- use_module(library(lists)).
+:- use_module(library(lists)), use_module(library(random)).
+
 /*
 
-Move Representation:
+Move Representation: CurrentPlayer-Pipe-SRow/SCol-DRow/DCol, where:
 
 CurrentPlayer: player that executed the move.
+Pipe (PipeType/PipeIndex): size of the pipe that was placed/moved (s, m, l, mup or lup) and its index (1, 2, 3 or 4)
 SRow & SCol: source position in the board where the move is made.
 DRow & DCol : destination position in the board where the move is made (applicable if U pipe, n otherwise)
-Pipe: size of the pipe that was placed/moved (s, m, l, mup or lup)
-
-Therefore, the representation is: CurrentPlayer-Pipe-SRow/SCol-DRow/DCol
 
 */
 
 /*
-pipe(+Mode, +Pipe)
+pipe(?Mode, ?Pipe, ?PipeIndex)
 
-This function validates a pipe.
+This predicate validates a pipe.
 
 Mode: game mode (3x3 or 4x4)
-Pipe: pipe type (s, m, l, mup or lup)
+Pipe: pipe PipeType (s, m, l, mup or lup)
+PipeIndex: pipe position in slot
 */
-pipe(Mode, s) :-
+pipe(Mode, s, 1) :-
     Mode == '3x3' ; Mode == '4x4'.
 
-pipe(Mode, m) :-
+pipe(Mode, m, 2) :-
     Mode == '3x3' ; Mode == '4x4'.
 
-pipe(Mode, l) :-
+pipe(Mode, l, 3) :-
     Mode == '3x3' ; Mode == '4x4'.
 
-pipe(Mode, mup) :-
+pipe(Mode, mup, 4) :-
     Mode == '4x4'.
 
-pipe(Mode, lup) :-
+pipe(Mode, lup, 4) :-
     Mode == '4x4'.
 
-/*
-input_move(+GameState, +ListOfValidMoves, -NewGameState)
-
-This predicate is responsible...tbc
-
-*/
-input_move('3x3'-F/S-Difficulty-Board-CurrentPlayer, ListOfValidMoves, '3x3'-F/S-Difficulty-NewBoard-CurrentPlayer) :-
-    repeat, % repeat code until it succeeds
-    format("~w, input move (pipe size, row, column):\n", [CurrentPlayer]),
-    read(Pipe-SRow-SCol),
-    pipe('3x3', Pipe),
-    member(CurrentPlayer-Pipe-SRow/SCol-n/n, ListOfValidMoves),
-    move('3x3'-F/S-Difficulty-Board-CurrentPlayer, CurrentPlayer-Pipe-SRow/SCol-n/n, '3x3'-F/S-Difficulty-NewBoard-CurrentPlayer).
+% TODO:  For uniformization purposes, coordinates should start at (1,1) at the lower left corner
 
 /*
 move(+GameState, +Move, -NewGameState). 
@@ -57,26 +45,70 @@ receiving the current game state and the move to be executed,
 and (if the move is valid) returns the new game state after the move is executed.
 
 */
-move('3x3'-F/S-Difficulty-Board-CurrentPlayer, CurrentPlayer-s-SRow/SCol-n/n, '3x3'-F/S-Difficulty-NewBoard-CurrentPlayer) :-
-    nth1(SRow, Board, Row_), % Get row to change
-    nth1(SCol, Row_, Col_), % Get pos to change
-    append_at(Col_, 1, 1, CurrentPlayer-s, [], NewList), % change pos
-    append_at(Row_, SCol, 1, NewList, [], NewRow),
-    append_at(Board, SRow, 1, NewRow, [], NewBoard).
 
-move('3x3'-F/S-Difficulty-Board-CurrentPlayer, CurrentPlayer-m-SRow/SCol-n/n, '3x3'-F/S-Difficulty-NewBoard-CurrentPlayer) :-
+move('3x3'-F/S-Level-Board-CurrentPlayer-PossibleMoves, CurrentPlayer-PipeType/PipeIndex-SRow/SCol-n/n, '3x3'-F/S-Level-NewBoard-CurrentPlayer-PossibleMoves) :-
+    choose_move('3x3'-F/S-Level-Board-CurrentPlayer-PossibleMoves, Level, CurrentPlayer-PipeType/PipeIndex-SRow/SCol-n/n),
     nth1(SRow, Board, Row_), % Get row to change
     nth1(SCol, Row_, Col_), % Get pos to change
-    append_at(Col_, 2, 1, CurrentPlayer-m, [], NewList), % change pos
-    append_at(Row_, SCol, 1, NewList, [], NewRow),
-    append_at(Board, SRow, 1, NewRow, [], NewBoard).
+    add_piece_to_board(Col_, Row_, Board, SCol, SRow, CurrentPlayer-PipeType, PipeIndex, NewBoard).
 
-move('3x3'-F/S-Difficulty-Board-CurrentPlayer, CurrentPlayer-l-SRow/SCol-n/n, '3x3'-F/S-Difficulty-NewBoard-CurrentPlayer) :-
-    nth1(SRow, Board, Row_), % Get row to change
-    nth1(SCol, Row_, Col_), % Get pos to change
-    append_at(Col_, 3, 1, CurrentPlayer-l, [], NewList), % change pos
-    append_at(Row_, SCol, 1, NewList, [], NewRow),
-    append_at(Board, SRow, 1, NewRow, [], NewBoard).
+/*
+
+choose_move(+GameState, +Level, -Move). 
+
+This predicate receives the current game state and 
+returns the move chosen by the computer player. 
+
+Level 1 should return a random valid move. 
+Level 2 should return the best play at the time (using a greedy algorithm), 
+considering the evaluation of the game state as determined by the value/3 predicate. 
+
+For human players, it should interact with the user to read the move.
+*/
+
+choose_move('3x3'-F/S-Level-Board-h-PossibleMoves, _Level, h-PipeType/PipeIndex-SRow/SCol-n/n) :-
+    repeat,
+    format("~w, input your move in the format: pipe size-row-column:\n", [h]),
+    read(PipeType-SRow-SCol),
+    pipe('3x3', PipeType, PipeIndex),
+    member(h-Pipe-SRow/SCol-n/n, PossibleMoves).
+
+% PC Level 1 - Random
+choose_move('3x3'-F/S-random-Board-pc-PossibleMoves, random, Move) :-
+    write('pc makes a move!'), nl,
+    random_member(Move, PossibleMoves).
+
+% PC Level 2 - Greedy
+% choose_move('3x3'-F/S-Level-Board-pc-PossibleMoves, 2, Move) :- 
+    
+
+/*
+add_piece_to_board(+Col, +Row, +Board, +ColIndex, +RowIndex, +Piece, +PieceIndex, -NewBoard)
+
+This predicate is responsible by adding a piece to the board by getting the spot [e,e,e],
+adding the piece to it: [e, h-s, e], then adding the spot to the row [[...],[e,h-s,e],[...]],
+then adding the row to the board: 
+[
+ [[e,e,e],[e,h-s,e],[e,e,e]],
+ [[e,e,e],[e,e,e],[e,e,e]],
+ [[e,e,e],[e,e,e],[e,e,e]]
+]
+
+Col: column to add the Piece
+Row: row to add Col (spot)
+Board: Board to add Row
+ColIndex: index to add the Col
+RowIndex: index to add the Row
+Piece: piece to be added (s, m, l, mup, lup)
+PieceIndex: index to place the Piece
+NewBoard: board with change made
+*/
+
+add_piece_to_board(Col, Row, Board, ColIndex, RowIndex, Piece, PieceIndex, NewBoard) :-
+    StartIndex is 1, % Because of using nth1
+    append_at(Col, PieceIndex, StartIndex, Piece, [], NewList), % Add piece to the spot
+    append_at(Row, ColIndex, StartIndex, NewList, [], NewRow), % Add spot to the row
+    append_at(Board, RowIndex, StartIndex, NewRow, [], NewBoard). % Add row to the board
 
 /*
 valid_move(+GameState, -Move)
@@ -89,12 +121,13 @@ GameState: current state of the game
 Move: valid move that can be executed
 
 */
-valid_move('3x3'-F/S-Difficulty-Board-CurrentPlayer, CurrentPlayer-Pipe-SRow/SCol-n/n) :-
+valid_move('3x3'-F/S-Level-Board-CurrentPlayer-PossibleMoves, CurrentPlayer-PipeType/PipeIndex-SRow/SCol-n/n) :-
     nth1(SRow, Board, Row_),
     nth1(SCol, Row_, Col_),
     nth1(Slot, Col_, Value),
-    Value == e,
-    pipeCheck(Slot, Pipe).
+    Value == e, % problem is when this fails
+    pipe('3x3', PipeType, Slot),
+    PipeIndex is Slot.
 
 /*
 valid_moves(+GameState, -ListOfMoves)
@@ -106,21 +139,9 @@ by using the conditions of the valid_move predicate.
 GameState: current state of the game
 ListOfMoves: list with all valid moves
 */
-valid_moves(GameState, ListOfMoves) :-
-    findall(Move, valid_move(GameState, Move), ListOfMoves).
+valid_moves(Mode-F/S-Level-Board-CurrentPlayer-PossibleMoves, ListOfMoves) :-
+    findall(Move, valid_move(Mode-F/S-Level-Board-CurrentPlayer-PossibleMoves, Move), ListOfMoves).
     % write(ListOfMoves).
-
-/*
-pipeCheck(+Pos, -Pipe)
-
-Given a position Pos, returns the Pipe type.
-
-Pos: position in array, 1, 2 or 3.
-Pipe: pipe type according to position (s-1, m-2, l-3) 
-*/
-pipeCheck(1, s).
-pipeCheck(2, m).
-pipeCheck(3, l).
 
 /*
 append_at(+List, +Index, +Count, +Elem, -AccList, -NewList)
