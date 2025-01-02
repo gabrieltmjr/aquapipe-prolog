@@ -86,6 +86,6 @@ where h -> Human, pc -> Computer and blue/red is the color of the pieces of a pl
 
 - *CurrentPlayer*: player that executed the move.
 - *PlayerColor*: color of CurrentPlayer
-- *Pipe (PipeType/PipeIndex)*: size of the pipe that was placed/moved (s, m, l, mup or lup) and its index (1, 2, 3 or 4)
+- *Pipe (PipeType/PipeIndex)*: type of pipe that was placed/moved (s, m, l, mup or lup) and its index (1, 2, 3 or 4)
 - *SRow* & *SCol*: source position in the board where the move is made.
 - *DRow* & *DCol* : destination position in the board where the move is made (applicable if U pipe, n otherwise)
