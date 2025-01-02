@@ -30,8 +30,8 @@ menu(1, Mode, F/S, Level) :- % Play mode
     write('3. PC/H'), nl,
     write('4. PC/PC'), nl,
     read(Option2),
-    playerMode(Option2, F/S, Level),
-    initial_state(Mode-F/S-Level, GameState),
+    playerMode(Option2, F-CF/S-CS, Level),
+    initial_state(Mode-F-CF/S-CS-Level, GameState),
     game_loop(GameState).
 
 menu(2, _, _, _). % Exit
@@ -39,7 +39,7 @@ menu(2, _, _, _). % Exit
 gameMode(1, '3x3').
 gameMode(2, '4x4').
 
-playerMode(1, h/h, none).
+playerMode(1, h-blue/h-red, none).
 
 playerMode(Option, Players, Level) :-
     playerModeOp(Option, Players),
@@ -50,9 +50,9 @@ playerMode(Option, Players, Level) :-
     read(Option3),
     level(Option3, Level).
 
-playerModeOp(2, h/pc).
-playerModeOp(3, pc/h).
-playerModeOp(4, pc/pc).
+playerModeOp(2, h-blue/pc-red).
+playerModeOp(3, pc-blue/h-red).
+playerModeOp(4, pc-blue/pc-red).
 
 level(1, random).
 level(2, greedy).

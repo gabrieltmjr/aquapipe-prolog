@@ -60,29 +60,32 @@ During the game, the following rules apply:
 
 ### Game Configuration Representation
 
-**Mode-Players-Difficulty** where,
+**Mode-Players-Level** where,
 
 - *Mode* - One of the 2 Game Modes of AquaPipe: 3x3 or 4x4
-- *Players (or F/S)* - Can be h/h, h/pc, pc/h, pc/pc, where h -> Human, pc -> Computer
+- *Players (or F-CF/S-CS)* - Can be h-blue/h-red, h-blue/pc-red, pc-blue/h-red, pc-blue/pc-red, \
+where h -> Human, pc -> Computer and blue/red is the color of the pieces of a player
 - *Level* - represents the level of the PC, it can be Random, Greedy or Minimax
 
 ### Internal Game State Representation
 
-**Mode-F/S-Difficulty-Board-P-Color** where,
+**Mode-F-CF/S-CS-Level-Board-P-CP-PossibleMoves** where,
 
 - *Mode* - One of the 2 Game Modes of AquaPipe: 3x3 or 4x4
-- *F* - First Player (h or pc) with color blue
-- *S* - Second Player (h or pc) with color red
+- *F & CF*  - First Player, F (h or pc) with color blue (CF - Color F)
+- *S & CS* - Second Player, S (h or pc) with color red (CS - Color S)
 - *Level* - represents the level of the PC, it can be Random, Greedy or Minimax
 - *Board* - Bi-dimensional list of 3x3 or 4x4 size, depends on Game Mode
 - *P* - Player to play on the current turn (F on the first turn)
+- *CP* - Color of player P
 - *PossibleMoves* - list with the moves that can be made by P on the current game state
 
 ### Move Representation
 
-**CurrentPlayer-Pipe-SRow/SCol-DRow/DCol** where,
+**CurrentPlayer-PlayerColor-Pipe-SRow/SCol-DRow/DCol** where,
 
 - *CurrentPlayer*: player that executed the move.
+- *PlayerColor*: color of CurrentPlayer
 - *Pipe (PipeType/PipeIndex)*: size of the pipe that was placed/moved (s, m, l, mup or lup) and its index (1, 2, 3 or 4)
 - *SRow* & *SCol*: source position in the board where the move is made.
 - *DRow* & *DCol* : destination position in the board where the move is made (applicable if U pipe, n otherwise)

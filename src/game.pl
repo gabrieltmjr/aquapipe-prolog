@@ -4,40 +4,42 @@ Game
 Game Configuration Representation: Mode-Players-Level, where:
 
 Mode - One of the 2 Game Modes of AquaPipe: 3x3 or 4x4
-Players (or F/S) - Can be h/h, h/pc, pc/h, pc/pc, where h -> Human, pc -> Computer
+Players (or F-CF/S-CS) - Can be h-blue/h-red, h-blue/pc-red, pc-blue/h-red, pc-blue/pc-red, 
+where h -> Human, pc -> Computer and blue/red is the color of the pieces of a player
 Level - represents the level of the PC, it can be Random, Greedy or Minimax
 
-Game State Representation: Mode-F/S-Level-Board-P, where:
+Game State Representation: Mode-F-CF/S-CS-Level-Board-P-CP-PossibleMoves, where:
 
 Mode - One of the 2 Game Modes of AquaPipe: 3x3 or 4x4
-F - First Player (h or pc) with color blue
-S - Second Player (h or pc) with color red
+F & CF  - First Player, F (h or pc) with color blue (CF - Color F)
+S & CS - Second Player, S (h or pc) with color red (CS - Color S)
 Level - represents the level of the PC, it can be Random, Greedy or Minimax
 Board - Bi-dimensional list of 3x3 or 4x4 size, depends on Game Mode
 P - Player to play on the current turn (F on the first turn)
+CP - Color of player P
 PossibleMoves - list with the moves that can be made by P on the current game state
 
 */
 
-initial_state(Mode-F/S-Level,
-              Mode-F/S-Level-[[[e,e,e],[e,e,e],[e,e,e]],
+initial_state(Mode-F-CF/S-CS-Level,
+              Mode-F-CF/S-CS-Level-[[[e,e,e],[e,e,e],[e,e,e]],
                                           [[e,e,e],[e,e,e],[e,e,e]],
-                                          [[e,e,e],[e,e,e],[e,e,e]]]-F-PossibleMoves) :-
+                                          [[e,e,e],[e,e,e],[e,e,e]]]-F-CF-PossibleMoves) :-
     var(GameState),
     Mode == '3x3'.
 
-initial_state(Mode-F/S-Level, 
-              Mode-F/S-Level-[[[e,e,e,e],[e,e,e,e],[e,e,e,e],[e,e,e,e]],
+initial_state(Mode-F-CF/S-CS-Level, 
+              Mode-F-CF/S-CS-Level-[[[e,e,e,e],[e,e,e,e],[e,e,e,e],[e,e,e,e]],
                                             [[e,e,e,e],[e,e,e,e],[e,e,e,e],[e,e,e,e]],
                                             [[e,e,e,e],[e,e,e,e],[e,e,e,e],[e,e,e,e]],
-                                            [[e,e,e,e],[e,e,e,e],[e,e,e,e],[e,e,e,e]]]-F-PossibleMoves) :-
+                                            [[e,e,e,e],[e,e,e,e],[e,e,e,e],[e,e,e,e]]]-F-CF-PossibleMoves) :-
     var(GameState),
     Mode == '4x4'.
 
-display_game(Mode-F/S-Level-[]-Turn-PossibleMoves).
-display_game(Mode-F/S-Level-[Head | Tail]-Turn-PossibleMoves) :-
+display_game(Mode-F-CF/S-CS-Level-[]-CurrentPlayer-PlayerColor-PossibleMoves).
+display_game(Mode-F-CF/S-CS-Level-[Head | Tail]-CurrentPlayer-PlayerColor-PossibleMoves) :-
     write(Head), nl,
-    display_game(Mode-F/S-Level-Tail-Turn-PossibleMoves).
+    display_game(Mode-F-CF/S-CS-Level-Tail-CurrentPlayer-PlayerColor-PossibleMoves).
 
 /*
 Game Loop:
@@ -54,13 +56,13 @@ game_loop(GameState) :-
     next_player(NewGameState, ReadyGameState), !,
     game_loop(ReadyGameState).
 
-turn(Mode-F/S-Level-Board-Turn-PossibleMoves, NewGameState) :-
-    display_game(Mode-F/S-Level-Board-Turn-PossibleMoves),
-    valid_moves(Mode-F/S-Level-Board-Turn-PossibleMoves, PossibleMoves),
-    move(Mode-F/S-Level-Board-Turn-PossibleMoves, Move, NewGameState).
+turn(Mode-F-CF/S-CS-Level-Board-CurrentPlayer-PlayerColor-PossibleMoves, NewGameState) :-
+    display_game(Mode-F-CF/S-CS-Level-Board-CurrentPlayer-PlayerColor-PossibleMoves),
+    valid_moves(Mode-F-CF/S-CS-Level-Board-CurrentPlayer-PlayerColor-PossibleMoves, PossibleMoves),
+    move(Mode-F-CF/S-CS-Level-Board-CurrentPlayer-PlayerColor-PossibleMoves, Move, NewGameState).
 
-next_player(Mode-F/S-Level-Board-F-PossibleMoves, Mode-F/S-Level-Board-S-NewPossibleMoves).
-next_player(Mode-F/S-Level-Board-S-PossibleMoves, Mode-F/S-Level-Board-F-NewPossibleMoves).
+next_player(Mode-F-CF/S-CS-Level-Board-F-CF-PossibleMoves, Mode-F-CF/S-CS-Level-Board-S-CS-NewPossibleMoves).
+next_player(Mode-F-CF/S-CS-Level-Board-S-CS-PossibleMoves, Mode-F-CF/S-CS-Level-Board-F-CF-NewPossibleMoves).
 
 /*
 game_over(+GameState, -Winner). 
@@ -71,7 +73,7 @@ Note that this predicate should not print anything to the terminal.
 
 */
 
-game_over(GameState, Winner).
+% game_over(GameState, Winner).
 
 % horizontal search
 % vertical search
