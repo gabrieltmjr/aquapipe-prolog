@@ -1,3 +1,5 @@
+/* -*- Mode:Prolog; coding:iso-8859-1; indent-tabs-mode:nil; prolog-indent-width:8; prolog-paren-indent:4; tab-width:8; -*- */
+
 /*
 Game
 
@@ -15,6 +17,9 @@ F & CF  - First Player, F (h or pc) with color blue (CF - Color F)
 S & CS - Second Player, S (h or pc) with color red (CS - Color S)
 Level - represents the level of the PC, it can be Random, Greedy or Minimax
 Board - Bi-dimensional list of 3x3 or 4x4 size, depends on Game Mode
+        Each board tile has 3 slots, for small, medium, and large pipes
+                Each slot may contain a b (blue), or r (read) pipe, or be e (empty)
+                        On 4x4 boards, a pipe may be followed by adjacent coordinates to signify a bridge pipe, such as b-[2,1] (blue bridge to row 2, col 1)
 P - Player to play on the current turn (F on the first turn)
 CP - Color of player P
 PossibleMoves - list with the moves that can be made by P on the current game state
@@ -29,10 +34,12 @@ initial_state(Mode-F-CF/S-CS-Level,
     Mode == '3x3'.
 
 initial_state(Mode-F-CF/S-CS-Level, 
-              Mode-F-CF/S-CS-Level-[[[e,e,e,e],[e,e,e,e],[e,e,e,e],[e,e,e,e]],
-                                            [[e,e,e,e],[e,e,e,e],[e,e,e,e],[e,e,e,e]],
-                                            [[e,e,e,e],[e,e,e,e],[e,e,e,e],[e,e,e,e]],
-                                            [[e,e,e,e],[e,e,e,e],[e,e,e,e],[e,e,e,e]]]-F-CF-PossibleMoves) :-
+              Mode-F-CF/S-CS-Level-[
+                                       [[e,e,e],[e,e,e],[e,e,e],[e,e,e]],
+                                       [[e,e,e],[e,e,e],[e,e,e],[e,e,e]],
+                                       [[e,e,e],[e,e,e],[e,e,e],[e,e,e]],
+                                       [[e,e,e],[e,e,e],[e,e,e],[e,e,e]]
+                                   ]-F-CF-PossibleMoves) :-
     var(GameState),
     Mode == '4x4'.
 
@@ -58,8 +65,8 @@ game_loop(GameState) :-
 
 turn(Mode-F-CF/S-CS-Level-Board-CurrentPlayer-PlayerColor-PossibleMoves, NewGameState) :-
     display_game(Mode-F-CF/S-CS-Level-Board-CurrentPlayer-PlayerColor-PossibleMoves),
-    valid_moves(Mode-F-CF/S-CS-Level-Board-CurrentPlayer-PlayerColor-PossibleMoves, PossibleMoves),
-    move(Mode-F-CF/S-CS-Level-Board-CurrentPlayer-PlayerColor-PossibleMoves, Move, NewGameState).
+    valid_moves(Mode-F-CF/S-CS-Level-Board-CurrentPlayer-PlayerColor-PossibleMoves, NewPossibleMoves),
+    move(Mode-F-CF/S-CS-Level-Board-CurrentPlayer-PlayerColor-NewPossibleMoves, Move, NewGameState).
 
 next_player(Mode-F-CF/S-CS-Level-Board-F-CF-PossibleMoves, Mode-F-CF/S-CS-Level-Board-S-CS-NewPossibleMoves).
 next_player(Mode-F-CF/S-CS-Level-Board-S-CS-PossibleMoves, Mode-F-CF/S-CS-Level-Board-F-CF-NewPossibleMoves).
