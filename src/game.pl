@@ -92,6 +92,14 @@ game_loop(GameState) :-
     game_loop(ReadyGameState).
 
 
+% turn(Mode-F-CF/S-CS-Level-Board-CurrentPlayer-PlayerColor-PossibleMoves, NewGameState) :-
+%    display_game(Mode-F-CF/S-CS-Level-Board-CurrentPlayer-PlayerColor-PossibleMoves),
+%    value(Mode-F-CF/S-CS-Level-Board-CurrentPlayer-PlayerColor-PossibleMoves, CurrentPlayer, Value),
+%    write('Value: '),
+%    write(Value), nl,
+%    valid_moves(Mode-F-CF/S-CS-Level-Board-CurrentPlayer-PlayerColor-PossibleMoves, PossibleMoves),
+%    move(Mode-F-CF/S-CS-Level-Board-CurrentPlayer-PlayerColor-PossibleMoves, Move, NewGameState).
+
 turn('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, NewGameState) :-
     nl, display_game('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves), nl, !, % after display game, cant go back
     valid_moves('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, PossibleMoves),
