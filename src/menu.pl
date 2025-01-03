@@ -60,20 +60,19 @@ playerMode(Option, '3x3', Players, Level) :-
     level(Option3, Level).
 
 playerModeOp(2, '3x3', h-blue-PF/pc-red-PS) :-
-    playerPieces(h, blue, PF),
-    playerPieces(pc, red, PS).
+    playerPieces('3x3', h, blue, PF),
+    playerPieces('3x3', pc, red, PS).
 
 playerModeOp(3, '3x3', pc-blue-PF/h-red-PS) :-
-    playerPieces(pc, blue, PF),
-    playerPieces(h, red, PS).
+    playerPieces('3x3', pc, blue, PF),
+    playerPieces('3x3', h, red, PS).
 
 playerModeOp(4, '3x3', pc-blue-PF/pc-red-PS) :-
-    playerPieces(pc, blue, PF),
-    playerPieces(pc, red, PS).
+    playerPieces('3x3', pc, blue, PF),
+    playerPieces('3x3', pc, red, PS).
 
 level(1, random).
 level(2, greedy).
 level(3, minimax).
 
-playerPieces('3x3', P, C, [[P-C-s, P-C-s, P-C-s],[P-C-m, P-C-m, P-C-m],[P-C-l, P-C-l, P-C-l]]).
-    
+playerPieces('3x3', P, C, [P-C-s-1-false, P-C-s-2-false, P-C-s-3-false, P-C-m-1-false, P-C-m-2-false, P-C-m-3-false, P-C-l-1-false, P-C-l-2-false, P-C-l-3-false]).

@@ -61,10 +61,10 @@ coordinates should start at (1,1) at the lower left corner.
 
 */
 
-display_game(Mode-F-CF-PF/S-CS-PS-Level-[]-CurrentPlayer-PlayerColor-PossibleMoves).
-display_game(Mode-F-CF-PF/S-CS-PS-Level-[Head | Tail]-CurrentPlayer-PlayerColor-PossibleMoves) :-
+display_game(Mode-F-CF-PF/S-CS-PS-Level-[]-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves).
+display_game(Mode-F-CF-PF/S-CS-PS-Level-[Head | Tail]-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves) :-
     write(Head), nl,
-    display_game(Mode-F-CF-PF/S-CS-PS-Level-Tail-CurrentPlayer-PlayerColor-PossibleMoves).
+    display_game(Mode-F-CF-PF/S-CS-PS-Level-Tail-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves).
 
 /*
 game_loop(+GameState)
@@ -92,13 +92,14 @@ game_loop(GameState) :-
     game_loop(ReadyGameState).
 
 
-turn(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PossibleMoves, NewGameState) :-
-    nl, display_game(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PossibleMoves), nl,
-    valid_moves(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PossibleMoves, PossibleMoves),
-    move(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PossibleMoves, Move, NewGameState).
+turn('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, NewGameState) :-
+    nl, display_game('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves), nl, !, % after display game, cant go back
+    valid_moves('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, PossibleMoves),
+    choose_move('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, Level, OnePiece-DestRow/DestCol-n/n),
+    move('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, OnePiece-DestRow/DestCol-n/n, NewGameState).
 
-next_player(Mode-F-CF-PF/S-CS-PS-Level-Board-F-CF-PF-PossibleMoves, Mode-F-CF-PF/S-CS-PS-Level-Board-S-CS-PS-NewPossibleMoves).
-next_player(Mode-F-CF-PF/S-CS-PS-Level-Board-S-CS-PS-PossibleMoves, Mode-F-CF-PF/S-CS-PS-Level-Board-F-CF-PF-NewPossibleMoves).
+next_player(Mode-F-CF-PF/S-CS-PS-Level-Board-F-CF-NewPF-PossibleMoves, Mode-F-CF-NewPF/S-CS-PS-Level-Board-S-CS-PS-NewPossibleMoves).
+next_player(Mode-F-CF-PF/S-CS-PS-Level-Board-S-CS-NewPS-PossibleMoves, Mode-F-CF-PF/S-CS-NewPS-Level-Board-F-CF-PF-NewPossibleMoves).
 
 /*
 game_over(+GameState, -Winner). 
@@ -112,104 +113,104 @@ game_over(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPiece
     game_over(Board, Winner).
 
 % vertical search
-game_over([[[Player-Color-Piece, _, _],[_, _, _],[_, _, _]],
-           [[Player-Color-Piece, _, _],[_, _, _],[_, _, _]],
-           [[Player-Color-Piece, _, _],[_, _, _],[_, _, _]]], Player-Color).
+game_over([[[Player-Color-Piece-_, _, _],[_, _, _],[_, _, _]],
+           [[Player-Color-Piece-_, _, _],[_, _, _],[_, _, _]],
+           [[Player-Color-Piece-_, _, _],[_, _, _],[_, _, _]]], Player-Color).
 
-game_over([[[_, Player-Color-Piece, _],[_, _, _],[_, _, _]],
-           [[_, Player-Color-Piece, _],[_, _, _],[_, _, _]],
-           [[_, Player-Color-Piece, _],[_, _, _],[_, _, _]]], Player-Color).
+game_over([[[_, Player-Color-Piece-_, _],[_, _, _],[_, _, _]],
+           [[_, Player-Color-Piece-_, _],[_, _, _],[_, _, _]],
+           [[_, Player-Color-Piece-_, _],[_, _, _],[_, _, _]]], Player-Color).
 
-game_over([[[_, _, Player-Color-Piece],[_, _, _],[_, _, _]],
-           [[_, _, Player-Color-Piece],[_, _, _],[_, _, _]],
-           [[_, _, Player-Color-Piece],[_, _, _],[_, _, _]]], Player-Color).
+game_over([[[_, _, Player-Color-Piece-_],[_, _, _],[_, _, _]],
+           [[_, _, Player-Color-Piece-_],[_, _, _],[_, _, _]],
+           [[_, _, Player-Color-Piece-_],[_, _, _],[_, _, _]]], Player-Color).
 
-game_over([[[_, _, _], [Player-Color-Piece, _, _], [_, _, _]],
-           [[_, _, _], [Player-Color-Piece, _, _], [_, _, _]],
-           [[_, _, _], [Player-Color-Piece, _, _], [_, _, _]]], Player-Color).
+game_over([[[_, _, _], [Player-Color-Piece-_, _, _], [_, _, _]],
+           [[_, _, _], [Player-Color-Piece-_, _, _], [_, _, _]],
+           [[_, _, _], [Player-Color-Piece-_, _, _], [_, _, _]]], Player-Color).
 
-game_over([[[_, _, _], [_, Player-Color-Piece, _], [_, _, _]],
-           [[_, _, _], [_, Player-Color-Piece, _], [_, _, _]],
-           [[_, _, _], [_, Player-Color-Piece, _], [_, _, _]]], Player-Color).
+game_over([[[_, _, _], [_, Player-Color-Piece-_, _], [_, _, _]],
+           [[_, _, _], [_, Player-Color-Piece-_, _], [_, _, _]],
+           [[_, _, _], [_, Player-Color-Piece-_, _], [_, _, _]]], Player-Color).
 
-game_over([[[_, _, _], [_, _, Player-Color-Piece], [_, _, _]],
-           [[_, _, _], [_, _, Player-Color-Piece], [_, _, _]],
-           [[_, _, _], [_, _, Player-Color-Piece], [_, _, _]]], Player-Color).
+game_over([[[_, _, _], [_, _, Player-Color-Piece-_], [_, _, _]],
+           [[_, _, _], [_, _, Player-Color-Piece-_], [_, _, _]],
+           [[_, _, _], [_, _, Player-Color-Piece-_], [_, _, _]]], Player-Color).
 
-game_over([[[_, _, _],[_, _, _],[Player-Color-Piece, _, _]],
-           [[_, _, _],[_, _, _],[Player-Color-Piece, _, _]],
-           [[_, _, _],[_, _, _],[Player-Color-Piece, _, _]]], Player-Color).
+game_over([[[_, _, _],[_, _, _],[Player-Color-Piece-_, _, _]],
+           [[_, _, _],[_, _, _],[Player-Color-Piece-_, _, _]],
+           [[_, _, _],[_, _, _],[Player-Color-Piece-_, _, _]]], Player-Color).
 
-game_over([[[_, _, _],[_, _, _],[_, Player-Color-Piece, _]],
-           [[_, _, _],[_, _, _],[_, Player-Color-Piece, _]],
-           [[_, _, _],[_, _, _],[_, Player-Color-Piece, _]]], Player-Color).
+game_over([[[_, _, _],[_, _, _],[_, Player-Color-Piece-_, _]],
+           [[_, _, _],[_, _, _],[_, Player-Color-Piece-_, _]],
+           [[_, _, _],[_, _, _],[_, Player-Color-Piece-_, _]]], Player-Color).
 
-game_over([[[_, _, _],[_, _, _],[_, _, Player-Color-Piece]],
-           [[_, _, _],[_, _, _],[_, _, Player-Color-Piece]],
-           [[_, _, _],[_, _, _],[_, _, Player-Color-Piece]]], Player-Color).
+game_over([[[_, _, _],[_, _, _],[_, _, Player-Color-Piece-_]],
+           [[_, _, _],[_, _, _],[_, _, Player-Color-Piece-_]],
+           [[_, _, _],[_, _, _],[_, _, Player-Color-Piece-_]]], Player-Color).
 
 % horizontal search
-game_over([[[Player-Color-Piece, _, _],[Player-Color-Piece, _, _],[Player-Color-Piece, _, _]],
+game_over([[[Player-Color-Piece-_, _, _],[Player-Color-Piece-_, _, _],[Player-Color-Piece-_, _, _]],
            [[_, _, _],[_, _, _],[_, _, _]],
            [[_, _, _],[_, _, _],[_, _, _]]], Player-Color).
 
-game_over([[[_, Player-Color-Piece, _],[_, Player-Color-Piece, _],[_, Player-Color-Piece, _]],
+game_over([[[_, Player-Color-Piece-_, _],[_, Player-Color-Piece-_, _],[_, Player-Color-Piece-_, _]],
            [[_, _, _],[_, _, _],[_, _, _]],
            [[_, _, _],[_, _, _],[_, _, _]]], Player-Color).
 
-game_over([[[_, _, Player-Color-Piece],[_, _, Player-Color-Piece],[_, _, Player-Color-Piece]],
+game_over([[[_, _, Player-Color-Piece-_],[_, _, Player-Color-Piece-_],[_, _, Player-Color-Piece-_]],
            [[_, _, _],[_, _, _],[_, _, _]],
            [[_, _, _],[_, _, _],[_, _, _]]], Player-Color).
 
 game_over([[[_, _, _],[_, _, _],[_, _, _]],
-           [[Player-Color-Piece, _, _],[Player-Color-Piece, _, _],[Player-Color-Piece, _, _]],
+           [[Player-Color-Piece-_, _, _],[Player-Color-Piece-_, _, _],[Player-Color-Piece-_, _, _]],
            [[_, _, _],[_, _, _],[_, _, _]]], Player-Color).
 
 game_over([[[_, _, _],[_, _, _],[_, _, _]],
-           [[_, Player-Color-Piece, _],[_, Player-Color-Piece, _],[_, Player-Color-Piece, _]],
+           [[_, Player-Color-Piece-_, _],[_, Player-Color-Piece-_, _],[_, Player-Color-Piece-_, _]],
            [[_, _, _],[_, _, _],[_, _, _]]], Player-Color).
 
 game_over([[[_, _, _],[_, _, _],[_, _, _]],
-           [[_, _, Player-Color-Piece],[_, _, Player-Color-Piece],[_, _, Player-Color-Piece]],
+           [[_, _, Player-Color-Piece-_],[_, _, Player-Color-Piece-_],[_, _, Player-Color-Piece-_]],
            [[_, _, _],[_, _, _],[_, _, _]]], Player-Color).
 
 game_over([[[_, _, _],[_, _, _],[_, _, _]],
            [[_, _, _],[_, _, _],[_, _, _]],
-           [[Player-Color-Piece, _, _],[Player-Color-Piece, _, _],[Player-Color-Piece, _, _]]], Player-Color).
+           [[Player-Color-Piece-_, _, _],[Player-Color-Piece-_, _, _],[Player-Color-Piece-_, _, _]]], Player-Color).
 
 game_over([[[_, _, _],[_, _, _],[_, _, _]],
            [[_, _, _],[_, _, _],[_, _, _]],
-           [[_, Player-Color-Piece, _],[_, Player-Color-Piece, _],[_, Player-Color-Piece, _]]], Player-Color).
+           [[_, Player-Color-Piece-_, _],[_, Player-Color-Piece-_, _],[_, Player-Color-Piece-_, _]]], Player-Color).
 
 game_over([[[_, _, _],[_, _, _],[_, _, _]],
            [[_, _, _],[_, _, _],[_, _, _]],
-           [[_, _, Player-Color-Piece],[_, _, Player-Color-Piece],[_, _, Player-Color-Piece]]], Player-Color).
+           [[_, _, Player-Color-Piece-_],[_, _, Player-Color-Piece-_],[_, _, Player-Color-Piece-_]]], Player-Color).
 
 % diagonal search
 
-game_over([[[Player-Color-Piece, _, _],[_, _, _],[_, _, _]],
-           [[_, _, _],[Player-Color-Piece, _, _],[_, _, _]],
-           [[_, _, _],[_, _, _],[Player-Color-Piece, _, _]]], Player-Color).
+game_over([[[Player-Color-Piece-_, _, _],[_, _, _],[_, _, _]],
+           [[_, _, _],[Player-Color-Piece-_, _, _],[_, _, _]],
+           [[_, _, _],[_, _, _],[Player-Color-Piece-_, _, _]]], Player-Color).
 
-game_over([[[_, Player-Color-Piece, _],[_, _, _],[_, _, _]],
-           [[_, _, _],[_, Player-Color-Piece, _],[_, _, _]],
-           [[_, _, _],[_, _, _],[_, Player-Color-Piece, _]]], Player-Color).
+game_over([[[_, Player-Color-Piece-_, _],[_, _, _],[_, _, _]],
+           [[_, _, _],[_, Player-Color-Piece-_, _],[_, _, _]],
+           [[_, _, _],[_, _, _],[_, Player-Color-Piece-_, _]]], Player-Color).
 
-game_over([[[_, _, Player-Color-Piece],[_, _, _],[_, _, _]],
-           [[_, _, _],[_, _, Player-Color-Piece],[_, _, _]],
-           [[_, _, _],[_, _, _],[_, _, Player-Color-Piece]]], Player-Color).
+game_over([[[_, _, Player-Color-Piece-_],[_, _, _],[_, _, _]],
+           [[_, _, _],[_, _, Player-Color-Piece-_],[_, _, _]],
+           [[_, _, _],[_, _, _],[_, _, Player-Color-Piece-_]]], Player-Color).
 
-game_over([[[_, _, _],[_, _, _],[_, _, Player-Color-Piece]],
-           [[_, _, _],[_, _, Player-Color-Piece],[_, _, _]],
-           [[_, _, Player-Color-Piece],[_, _, _],[_, _, _]]], Player-Color).
+game_over([[[_, _, _],[_, _, _],[_, _, Player-Color-Piece-_]],
+           [[_, _, _],[_, _, Player-Color-Piece-_],[_, _, _]],
+           [[_, _, Player-Color-Piece-_],[_, _, _],[_, _, _]]], Player-Color).
 
-game_over([[[_, _, _],[_, _, _],[_, Player-Color-Piece, _]],
-           [[_, _, _],[_, Player-Color-Piece, _],[_, _, _]],
-           [[_, Player-Color-Piece, _],[_, _, _],[_, _, _]]], Player-Color).
+game_over([[[_, _, _],[_, _, _],[_, Player-Color-Piece-_, _]],
+           [[_, _, _],[_, Player-Color-Piece-_, _],[_, _, _]],
+           [[_, Player-Color-Piece-_, _],[_, _, _],[_, _, _]]], Player-Color).
 
-game_over([[[_, _, _],[_, _, _],[Player-Color-Piece, _, _]],
-           [[_, _, _],[Player-Color-Piece, _, _],[_, _, _]],
-           [[Player-Color-Piece, _, _],[_, _, _],[_, _, _]]], Player-Color).
+game_over([[[_, _, _],[_, _, _],[Player-Color-Piece-_, _, _]],
+           [[_, _, _],[Player-Color-Piece-_, _, _],[_, _, _]],
+           [[Player-Color-Piece-_, _, _],[_, _, _],[_, _, _]]], Player-Color).
 
 % draw
 game_over([[[_P1, _P4, _P7],[_P10, _P13, _P16],[_P19, _P22, _P25]],

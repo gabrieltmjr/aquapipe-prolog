@@ -7,8 +7,8 @@ Move Representation: CurrentPlayer-PlayerColor-Pipe-SRow/SCol-DRow/DCol, where:
 CurrentPlayer: player that executed the move.
 PlayerColor: color of the CurrentPlayer
 Pipe (PipeType/PipeIndex): type of pipe that was placed/moved (s, m, l, mup or lup) and its index (1, 2, 3 or 4)
-SRow & SCol: source position in the board where the move is made.
-DRow & DCol : destination position in the board where the move is made (applicable if U pipe, n otherwise)
+DRow & DRow: destination position in the board where the move is made.
+DRow2 & DCol2 : end destination position in the board where the move is made (applicable if U pipe, n otherwise)
 
 Piece Representation: CurrentPlayer-PlayerColor-PipeType
 
@@ -49,14 +49,14 @@ and (if the move is valid) returns the new game state after the move is executed
 
 */
 
-move('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, 
-    CurrentPlayer-PlayerColor-PipeType/PipeIndex-SRow/SCol-n/n, 
-    '3x3'-F-CF-PF/S-CS-PS-Level-NewBoard-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves) :-
-    choose_move('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, Level, CurrentPlayer-PlayerColor-PipeType/PipeIndex-SRow/SCol-n/n),
-    nth1(SRow, Board, Row_), % Get row to change
-    nth1(SCol, Row_, Col_), % Get pos to change
-    add_piece_to_board(Col_, Row_, Board, SCol, SRow, CurrentPlayer-PlayerColor-PipeType, PipeIndex, NewBoard), !. % Cut - no backtrack after moving (because of game_over)
-
+move('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, Player-Color-PipeType-PipeNumber-InBoard-DestRow/DestCol-n/n, 
+    '3x3'-F-CF-PF/S-CS-PS-Level-NewBoard-CurrentPlayer-PlayerColor-NewPlayerPieces-PossibleMoves) :-
+    nth1(DestRow, Board, Row_), % Get row to change
+    nth1(DestCol, Row_, Col_), % Get pos to change
+    pipe('3x3', PipeType, PipeIndex),
+    add_piece_to_board(Col_, Row_, Board, DestCol, DestRow, Player-Color-PipeType-PipeNumber-InBoard, PipeIndex, NewBoard), !, % Cut - no backtrack after moving (because of game_over)
+    nth0(Pos, PlayerPieces, Player-Color-PipeType-PipeNumber-InBoard, RemainingPieces),
+    nth0(Pos, NewPlayerPieces, Player-Color-PipeType-PipeNumber-true, RemainingPieces). % Update piece to say its in board
 /*
 
 choose_move(+GameState, +Level, -Move). 
@@ -71,12 +71,13 @@ considering the evaluation of the game state as determined by the value/3 predic
 For human players, it should interact with the user to read the move.
 */
 
-choose_move('3x3'-F-CF-PF/S-CS-PS-Level-Board-h-PlayerColor-PlayerPieces-PossibleMoves, _Level, h-PlayerColor-PipeType/PipeIndex-SRow/SCol-n/n) :-
+choose_move('3x3'-F-CF-PF/S-CS-PS-Level-Board-h-PlayerColor-PlayerPieces-PossibleMoves, Level, h-PlayerColor-PipeType-PipeNumber-InBoard-DestRow/DestCol-n/n) :-
     repeat,
-    format("~w, input your move in the format: pipe size-row-column:\n", [h]),
-    read(PipeType-SRow-SCol),
-    pipe('3x3', PipeType, PipeIndex),
-    member(h-PlayerColor-Pipe-SRow/SCol-n/n, PossibleMoves).
+    format("Your pieces: ~w\n", [PlayerPieces]), nl,
+    format("~w, Choose a piece to move and destination in the format: pipe type-pipe number-destination row-destination column-in board value(true/false):\n", [h]),
+    read(PipeType-PipeNumber-DestRow-DestCol-InBoard), nl,
+    member(h-PlayerColor-PipeType-PipeNumber-InBoard-DestRow/DestCol-n/n, PossibleMoves).
+    
 
 % PC Level 1 - Random
 choose_move('3x3'-F-CF-PF/S-CS-PS-random-Board-pc-PlayerColor-PlayerPieces-PossibleMoves, random, Move) :-
@@ -109,9 +110,9 @@ PieceIndex: index to place the Piece
 NewBoard: board with change made
 */
 
-add_piece_to_board(Col, Row, Board, ColIndex, RowIndex, Piece, PieceIndex, NewBoard) :-
+add_piece_to_board(Col, Row, Board, ColIndex, RowIndex, Player-Color-PipeType-PipeNumber-InBoard, PieceIndex, NewBoard) :-
     StartIndex is 1, % Because of using nth1
-    append_at(Col, PieceIndex, StartIndex, Piece, [], NewList), % Add piece to the spot
+    append_at(Col, PieceIndex, StartIndex, Player-Color-PipeType-PipeNumber, [], NewList), % Add piece to the spot
     append_at(Row, ColIndex, StartIndex, NewList, [], NewRow), % Add spot to the row
     append_at(Board, RowIndex, StartIndex, NewRow, [], NewBoard). % Add row to the board
 
@@ -127,23 +128,29 @@ Move: valid move that can be executed
 
 */
 
-% if all pieces are in the board already
-valid_move('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-[]-PossibleMoves, CurrentPlayer-PlayerColor-PipeType/PipeIndex-SRow/SCol-n/n) :-
-    nth1(SRow, Board, Row_),
-    nth1(SCol, Row_, Col_),
-    nth1(Slot, Col_, Value),
-    Value == e,
-    pipe('3x3', PipeType, Slot),
-    PipeIndex is Slot.
+% if player still has pieces out of board
+valid_move('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, 
+            _CP-_PC-_PT-_PN-false-SRow/SCol-n/n) :-
+    member(_CP-_PC-_PT-_PN-false, PlayerPieces), % Check if player has pieces out of board
+    nth0(_, PlayerPieces, _CP-_PC-_PT-_PN-false), % Get a piece out of board
+    pipe('3x3', _PT, PipeIndex), % Check if empty spot matches piece type
+    nth1(SRow, Board, Row_), % Search for empty spot
+    nth1(SCol, Row_, Col_), % S
+    nth1(PipeIndex, Col_, Value), % S
+    Value == e. % S
+    
 
-% if player still has pieces to move
-valid_move('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-[ Head | Tail]-PossibleMoves, CurrentPlayer-PlayerColor-PipeType/PipeIndex-SRow/SCol-n/n) :-
-    nth1(SRow, Board, Row_),
-    nth1(SCol, Row_, Col_),
-    nth1(Slot, Col_, Value),
-    Value == e,
-    pipe('3x3', PipeType, Slot),
-    PipeIndex is Slot
+
+% if all pieces are in the board already
+valid_move('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, _CP-_PC-_PT-_PN-true-SRow/SCol-n/n) :-
+    nth0(_, PlayerPieces, _CP-_PC-_PT-_PN-true), % Get a piece out of board
+    pipe('3x3', _PT, PipeIndex), % Check if empty spot matches piece type
+    nth1(SRow, Board, Row_), % Search for empty spot
+    nth1(SCol, Row_, Col_), % S
+    nth1(PipeIndex, Col_, Value), % S
+    Value == e. % S
+
+
 /*
 valid_moves(+GameState, -ListOfMoves)
 
@@ -156,7 +163,6 @@ ListOfMoves: list with all valid moves
 */
 valid_moves(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, ListOfMoves) :-
     findall(Move, valid_move(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, Move), ListOfMoves).
-    % write(ListOfMoves).
 
 /*
 append_at(+List, +Index, +Count, +Elem, -AccList, -NewList)
