@@ -75,4 +75,19 @@ level(1, random).
 level(2, greedy).
 level(3, minimax).
 
-playerPieces('3x3', P, C, [P-C-s-1-false, P-C-s-2-false, P-C-s-3-false, P-C-m-1-false, P-C-m-2-false, P-C-m-3-false, P-C-l-1-false, P-C-l-2-false, P-C-l-3-false]).
+/*
+Piece Representation: CurrentPlayer-PlayerColor-PipeType-PipeNumber-InBoard-RowInBoard/ColInBoard-RowInBoardUPipe-ColInBoardUPipe
+
+CurrentPlayer: player (h or pc).
+PlayerColor: color of the CurrentPlayer (blue or red)
+Pipe (PipeType/PipeNumber): type of pipe that was placed/moved (s, m, l, mup or lup) and its index (1, 2, 3)
+InBoard: boolean value that represents if piece is in board or not, false meaning out of board, true meaning in the board
+RowInBoard & ColInBoard : If piece is in board, represents the row and column where it is, otherwise n/n 
+RowInBoardUPipe & ColInBoardUPipe : If piece is U pipe, represents the row and column where the other end of the U pipe is, otherwise n/n (only applicable with 4x4 version)
+
+*/
+
+/*
+playerPieces...
+*/
+playerPieces(Mode, P, C, [P-C-s-1-false-n/n-n/n, P-C-s-2-false-n/n-n/n, P-C-s-3-false-n/n-n/n, P-C-m-1-false-n/n-n/n, P-C-m-2-false-n/n-n/n, P-C-m-3-false-n/n-n/n, P-C-l-1-false-n/n-n/n, P-C-l-2-false-n/n-n/n, P-C-l-3-false-n/n-n/n]).

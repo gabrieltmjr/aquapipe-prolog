@@ -80,12 +80,21 @@ where h -> Human, pc -> Computer and blue/red is the color of the pieces of a pl
 - *CP* - Color of player P
 - *PossibleMoves* - list with the moves that can be made by P on the current game state
 
+### Piece Representation
+
+**CurrentPlayer-PlayerColor-PipeType-PipeNumber-InBoard-RowInBoard/ColInBoard-RowInBoardUPipe-ColInBoardUPipe** where,
+
+- *CurrentPlayer*: player (h or pc).
+- *PlayerColor*: color of the CurrentPlayer (blue or red)
+- *Pipe (PipeType/PipeNumber)*: type of pipe that was placed/moved (s, m, l, mup or lup) and its index (1, 2, 3)
+- *InBoard*: boolean value that represents if piece is in board or not, false meaning out of board, true meaning in the board
+- *RowInBoard & ColInBoard*: If piece is in board, represents the row and column where it is, otherwise n/n
+- *RowInBoardUPipe & ColInBoardUPipe*: If piece is U pipe, represents the row and column where the other end of the U pipe is, otherwise n/n (only applicable with 4x4 version)
+
 ### Move Representation
 
-**CurrentPlayer-PlayerColor-Pipe-SRow/SCol-DRow/DCol** where,
+**Piece-DRow/DCol-DRowUPipe/DColUpipe** where,
 
-- *CurrentPlayer*: player that executed the move.
-- *PlayerColor*: color of CurrentPlayer
-- *Pipe (PipeType/PipeIndex)*: type of pipe that was placed/moved (s, m, l, mup or lup) and its index (1, 2, 3 or 4)
-- *SRow* & *SCol*: source position in the board where the move is made.
-- *DRow* & *DCol* : destination position in the board where the move is made (applicable if U pipe, n otherwise)
+- *Piece*: represents the piece to be moved
+- *DRow & DCol*: destination position in the board where the piece will be placed.
+- *DRowUPipe & DColUPipe*: If piece is U pipe, represents the row and column where the other end of the U pipe will be placed (applicable if U pipe, n/n otherwise)
