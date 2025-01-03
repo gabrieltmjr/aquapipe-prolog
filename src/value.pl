@@ -49,25 +49,6 @@ For the following value calculation, we look at the following terminology:
     This is calculated for every Line, because to count a potential win, we must only consider
     Lines comprised of pipes of the same size.
 */
-Board1 = [[[e,e,e],[e,e,e],[e,e,e]], % Expected value for h: 0
-        [[e,e,e],[e,e,e],[e,e,e]],
-        [[e,e,e],[e,e,e],[e,e,e]]].
-Board2 = [[[h-blue-s,e,e],[e,e,e],[e,e,e]], % Expected value for h: 3
-        [[e,e,e],[e,e,e],[e,e,e]],
-        [[e,e,e],[e,e,e],[e,e,e]]].
-Board3 = [[[h-blue-s,e,e],[e,e,e],[pc-red-s,e,e]], % Expected value for h: 2
-        [[e,e,e],[e,e,e],[e,e,e]],
-        [[e,e,e],[e,e,e],[e,e,e]]].
-Board4 = [[[h-blue-s,e,e],[e,e,e],[pc-red-s,e,e]], % Expected value for h: 4
-        [[h-blue-s,e,e],[e,e,e],[e,e,e]],
-        [[e,e,e],[e,e,e],[e,e,e]]].
-Board5 = [[[h-blue-s,e,e],[e,e,e],[pc-red-s,e,e]], % Expected value for h: 2
-        [[h-blue-s,e,e],[e,e,e],[e,e,e]],
-        [[pc-red-s,e,e],[e,e,e],[e,e,e]]].
-Board6 = [[[h-blue-s,e,e],[e,e,e],[pc-red-s,e,e]], % Expected value for h: 
-        [[h-blue-s,e,e],[e,e,e],[e,e,e]],
-        [[pc-red-s,e,e],[e,e,e],[e,e,e]]].
-
 
 % Transposes the given Board matrix.
 % cols(+Board, -Cols)
@@ -118,7 +99,7 @@ extract_lines(Mode, Board, Lines) :-
 
 % Succeeds if the first part of a pipe expression Term matches Player.
 % match_player(+Player, +Term)
-match_player(Player, Player-_-_).
+match_player(Player, _-Player-_).
 
 % Finds the value of a given amount of pipes of the same player, on the same slot, on the same line,
 % according to the scoring mentioned above.
@@ -183,8 +164,8 @@ value(Mode-F-CF/S-CS-Level-Board-CurrentPlayer-PlayerColor-PossibleMoves, Player
     next_player(Mode-F-CF/S-CS-Level-Board-CurrentPlayer-PlayerColor-PossibleMoves,
         Mode-F-CF/S-CS-Level-Board-Opponent-OpponentColor-NewPossibleMoves),
     extract_lines(Mode, Board, Lines),
-    findall(PlayerScore, (member(Line, Lines), score(Mode, Player, Opponent, Line, PlayerScore)), PlayerScores),
-    findall(OpponentScore, (member(Line, Lines), score(Mode, Opponent, Player, Line, OpponentScore)), OpponentScores),
+    findall(PlayerScore, (member(Line, Lines), score(Mode, PlayerColor, OpponentColor, Line, PlayerScore)), PlayerScores),
+    findall(OpponentScore, (member(Line, Lines), score(Mode, OpponentColor, PlayerColor, Line, OpponentScore)), OpponentScores),
     sum_list(PlayerScores, TotalPlayerScore),
     sum_list(OpponentScores, TotalOpponentScore),
     Value is TotalPlayerScore - TotalOpponentScore.
