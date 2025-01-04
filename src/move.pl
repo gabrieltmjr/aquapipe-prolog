@@ -58,10 +58,10 @@ move('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-Po
     '3x3'-F-CF-PF/S-CS-PS-Level-NewBoard-CurrentPlayer-PlayerColor-NewPlayerPieces-PossibleMoves) :-
     nth1(SrcRow, Board, RowForE), % Get row to replace with e
     nth1(SrcCol, RowForE, ColForE), % Get col to replace with e
-    nth1(DestRow, Board, Row_), % Get row to change
-    nth1(DestCol, Row_, Col_), % Get pos to change
     pipe('3x3', PipeType, PipeIndex), % Get PipeIndex
     add_piece_to_board(ColForE, RowForE, Board, SrcCol, SrcRow, e, PipeIndex, AuxBoard), % Add e to board
+    nth1(DestRow, AuxBoard, Row_), % Get row to change
+    nth1(DestCol, Row_, Col_), % Get pos to change
     add_piece_to_board(Col_, Row_, AuxBoard, DestCol, DestRow, Player-Color-PipeType-PipeNumber-true, PipeIndex, NewBoard), !, % Cut - no backtrack after moving (because of game_over)
     nth0(Pos, PlayerPieces, Player-Color-PipeType-PipeNumber-true-SrcRow/SrcCol-n/n, RemainingPieces), % Remove old piece
     nth0(Pos, NewPlayerPieces, Player-Color-PipeType-PipeNumber-true-DestRow/DestCol-n/n, RemainingPieces). % Update piece position in board
