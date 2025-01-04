@@ -102,9 +102,13 @@ choose_move('3x3'-F-CF-PF/S-CS-PS-random-Board-pc-PlayerColor-PlayerPieces-Possi
     write('pc makes a move!'), nl,
     random_member(Move, PossibleMoves).
 
+:- include('greedy.pl').
+
 % PC Level 2 - Greedy
-% choose_move('3x3'-F-CF-PF/S-CS-PS-Level-Board-pc-PlayerColor-PossibleMoves, 2, Move) :- 
-    
+choose_move('3x3'-F-CF-PF/S-CS-PS-greedy-Board-pc-PlayerColor-PlayerPieces-PossibleMoves, greedy, Move) :-
+    write('pc makes a greedy move!'), nl,
+    evaluate_moves(PlayerColor, '3x3'-F-CF-PF/S-CS-PS-greedy-Board-pc-PlayerColor-PlayerPieces-PossibleMoves, PossibleMoves, [], EvaluatedMoves),
+    best_move(EvaluatedMoves, Move).
 
 /*
 add_piece_to_board(+Col, +Row, +Board, +ColIndex, +RowIndex, +Piece, +PieceIndex, -NewBoard)
