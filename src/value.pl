@@ -99,7 +99,7 @@ extract_lines(Mode, Board, Lines) :-
 
 % Succeeds if the first part of a pipe expression Term matches Player.
 % match_player(+Player, +Term)
-match_player(Player, _-Player-_).
+match_player(Player, _-Player-_-_).
 
 % Finds the value of a given amount of pipes of the same player, on the same slot, on the same line,
 % according to the scoring mentioned above.
@@ -157,12 +157,16 @@ score('4x4', Player, Opponent, Line, Score) :-
     findall(SlotScore, (member(Slot, AllSlots), slot_score('4x4', Player, Opponent, Slot, Slotscore)), SlotScores),
     sum_list(SlotScores, Score).
 
+% Returns the color of the opposite player, given the color of the current one.
+% opponent(+ColorFirst-ColorSecond, +CurrentPlayerColor, -OpponentColor)
+opponent(CF-CS, CF, CS).
+opponent(CF-CS, CS, CF).
+
 % Calculates all values of all Lines, for both the Player and the Opponent, and then computes the value for the
 % given GameState.
 % value(+GameState, +Player, -Value)
-value(Mode-F-CF/S-CS-Level-Board-CurrentPlayer-PlayerColor-PossibleMoves, Player, Value) :-
-    next_player(Mode-F-CF/S-CS-Level-Board-CurrentPlayer-PlayerColor-PossibleMoves,
-        Mode-F-CF/S-CS-Level-Board-Opponent-OpponentColor-NewPossibleMoves),
+value(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, Player, Value) :-
+    opponent(CF-CS, PlayerColor, OpponentColor),
     extract_lines(Mode, Board, Lines),
     findall(PlayerScore, (member(Line, Lines), score(Mode, PlayerColor, OpponentColor, Line, PlayerScore)), PlayerScores),
     findall(OpponentScore, (member(Line, Lines), score(Mode, OpponentColor, PlayerColor, Line, OpponentScore)), OpponentScores),
