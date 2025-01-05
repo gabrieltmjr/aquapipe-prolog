@@ -166,10 +166,10 @@ opponent(CF-CS, CS, CF).
 % given GameState.
 % value(+GameState, +Player, -Value)
 value(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, Player, Value) :-
-    opponent(CF-CS, PlayerColor, OpponentColor),
+    opponent(CF-CS, Player, OpponentColor),
     extract_lines(Mode, Board, Lines),
-    findall(PlayerScore, (member(Line, Lines), score(Mode, PlayerColor, OpponentColor, Line, PlayerScore)), PlayerScores),
-    findall(OpponentScore, (member(Line, Lines), score(Mode, OpponentColor, PlayerColor, Line, OpponentScore)), OpponentScores),
+    findall(PlayerScore, (member(Line, Lines), score(Mode, Player, OpponentColor, Line, PlayerScore)), PlayerScores),
+    findall(OpponentScore, (member(Line, Lines), score(Mode, OpponentColor, Player, Line, OpponentScore)), OpponentScores),
     sum_list(PlayerScores, TotalPlayerScore),
     sum_list(OpponentScores, TotalOpponentScore),
     Value is TotalPlayerScore - TotalOpponentScore.
