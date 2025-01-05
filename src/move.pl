@@ -154,9 +154,9 @@ choose_move(Mode-F-CF-PF/S-CS-PS-greedy-Board-pc-PlayerColor-_-PossibleMoves, gr
 :- include('minimax.pl').
 
 % PC Level 3 - Minimax
-choose_move('3x3'-F-CF-PF/S-CS-PS-minimax-Board-pc-PlayerColor-_-PossibleMoves, minimax, Move) :-
+choose_move(Mode-F-CF-PF/S-CS-PS-minimax-Board-pc-PlayerColor-_-PossibleMoves, minimax, Move) :-
     write('minimax pc makes a move!'), nl,
-    minimax('3x3'-F-CF-PF/S-CS-PS-minimax-Board-pc-PlayerColor-PlayerColor-PossibleMoves,
+    minimax(Mode-F-CF-PF/S-CS-PS-minimax-Board-pc-PlayerColor-PlayerColor-PossibleMoves,
             2,
             PlayerColor,
             PlayerColor,
