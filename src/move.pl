@@ -110,6 +110,14 @@ choose_move('3x3'-F-CF-PF/S-CS-PS-greedy-Board-pc-PlayerColor-PlayerPieces-Possi
     evaluate_moves(PlayerColor, '3x3'-F-CF-PF/S-CS-PS-greedy-Board-pc-PlayerColor-PlayerPieces-PossibleMoves, PossibleMoves, [], EvaluatedMoves),
     best_move(EvaluatedMoves, Move).
 
+:- include('minimax.pl').
+
+% PC Level 3 - Minimax
+choose_move('3x3'-F-CF-PF/S-CS-PS-minimax-Board-pc-PlayerColor-PlayerPieces-PossibleMoves, minimax, Move) :-
+    write('minimax pc makes a move!'), nl,
+    minimax(PlayerColor, '3x3'-F-CF-PF/S-CS-PS-minimax-Board-pc-PlayerColor-PlayerPieces-PossibleMoves, 1, true, Value),
+    write('Minimax Value (Depth 3): '), write(Value), nl.
+
 /*
 add_piece_to_board(+Col, +Row, +Board, +ColIndex, +RowIndex, +Piece, +PieceIndex, -NewBoard)
 
