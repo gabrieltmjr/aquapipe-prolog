@@ -6,9 +6,13 @@ Group Name: Aquapipe_3
 
 ### Group Members
 
-- António Lino dos Santos (201705558) - XX% Contribution
-- Gabriel Tomaz Machado Júnior (202008860) - XX% Contribution
-- Manuel Rivera Villatte (202401168) - XX% Contribution
+- António Lino dos Santos (201705558) - 30% Contribution
+- Gabriel Tomaz Machado Júnior (202008860) - 35% Contribution
+- Manuel Rivera Villatte (202401168) - 35% Contribution
+
+### Installation and Execution
+
+Our Application runs much like any other designed in class. Just dropping the files into a SICStus Prolog 4.9.0 enviromemnt and calling the `play/0` predicate will start the application.
 
 ### Topic (Game) and Rules
 
@@ -43,6 +47,10 @@ During the game, the following rules apply:
 [Game Page on BoardGameGeek](https://boardgamegeek.com/boardgame/414235/aqua-pipe)
 
 *Note:* The game also has a 4x4 mode, which we tried to implement, but we due to complications and time constraints and couldn't implement it.
+
+### Considerations for game extensions
+
+We chose to add an additional rule to the base game that is explained in more detail in the rules section. The rule was considered to restrict the mobility of placed pipes in boards.
 
 ## Game Logic
 
@@ -88,3 +96,14 @@ where h -> Human, pc -> Computer and blue/red is the color of the pieces of a pl
 ## Notes
 
 1. Due to misattention from the beginning and lack of time, we weren't able to make the coordinates start at (1,1) at the lower left corner.
+
+## Conclusions
+
+The project was developed innitially without the option of moving pipes once they were already placed, and that feature was only implemented later. A similar strategy was used for the development of the 4x4 board and bridge pipe rules, but, due to issues with pipe validation and struggles with the debugging process, the 4x4 mode was not ready in due time. <br>
+An additional process was developing a minimax algorithm that would proccess its move in a short time, as our current model takes a long time to calculate its next move. <br>
+In future development, we could finish implementing the features we had to cut, such as the 4x4 mode, as well as improving our computer minimax algorithm to run faster and/or better. We could also allow for players to quit the application in the middle of a game through menus, and an option to save a midway game. We could also add stat tracking and a leaderboard for player comparison. <br>
+
+## Bibliography
+
+- Documentation for SICStus Prolog 4.9.0
+- PFL course lecture resources
