@@ -85,6 +85,23 @@ where h -> Human, pc -> Computer and blue/red is the color of the pieces of a pl
 - *Piece*: represents the piece to be moved
 - *DRow & DCol*: destination position in the board where the piece will be placed.
 
+## Minimax Algorithm Strategy
+
+The algorithm was designed with the recursive `minimax` function that has a base case and a recursive case.
+
+The idea is that on every turn, the player can be either the Maximizing Player or the Minimizing Player.
+
+The Minimax PC is going to be the Maximizing, and its opponent the Minimizing.
+
+The algorithm looks for valid moves, then iterates over them, applying each one and then recursively calling `minimax`. When
+a terminal node is found (or depth becomes 0), then the algorithm calculates the `value` for the given GameState and returns it.
+When there are no moves left to analyze, the algorithm either looks for the move that yielded the minimum or the maximum value,
+depending on whichever player performed the move.
+
+The algorithm recursively goes through the whole tree. It is worth noting that for a depth of only 2, the pc takes quite a while to perform a move. Try with depths 3 and above with discretion. We are not to be held liable for any memory overflows. (we have lawyers.)
+
+For any doubts, the code itself is thoroughly documented (well, as thoroughly as we could).
+
 ## Notes
 
 1. Due to misattention from the beginning and lack of time, we weren't able to make the coordinates start at (1,1) at the lower left corner.
