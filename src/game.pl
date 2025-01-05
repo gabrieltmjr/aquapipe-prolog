@@ -8,7 +8,7 @@ Players (or F-CF-PF/S-CS-PS) - Can be h-blue/h-red, h-blue/pc-red, pc-blue/h-red
 where h -> Human, pc -> Computer and blue/red is the color of the pieces of a player
 Level - represents the level of the PC, it can be Random, Greedy or Minimax
 
-Game State Representation: Mode-F-CF-PF/S-CS-PS-Level-Board-P-CP-PossibleMoves, where:
+Game State Representation: Mode-F-CF-PF/S-CS-PS-Level-Board-P-CP-PlayerToMove-PossibleMoves, where:
 
 Mode - One of the 2 Game Modes of AquaPipe: 3x3 or 4x4
 F & CF & PF  - First Player, F (h or pc) with color blue (CF - Color F) and pieces of Player F (PF)
@@ -17,7 +17,7 @@ Level - represents the level of the PC, it can be Random, Greedy or Minimax
 Board - Bi-dimensional list of 3x3 or 4x4 size, depends on Game Mode
 P - Player to play on the current turn (F on the first turn)
 CP - Color of player P
-AvaliablePieces - the pieces that Player P can play
+PlayerToMove - the color of the player that attempted the last move
 PossibleMoves - list with the moves that can be made by P on the current game state
 
 */
@@ -40,7 +40,7 @@ pieces yet to be played, or any other information that may be required, dependin
 initial_state(Mode-F-CF-PF/S-CS-PS-Level,
               Mode-F-CF-PF/S-CS-PS-Level-[[[e,e,e],[e,e,e],[e,e,e]],
                                           [[e,e,e],[e,e,e],[e,e,e]],
-                                          [[e,e,e],[e,e,e],[e,e,e]]]-F-CF-PF-PossibleMoves) :-
+                                          [[e,e,e],[e,e,e],[e,e,e]]]-F-CF-_-PossibleMoves) :-
     var(GameState),
     Mode == '3x3'.
 
@@ -48,7 +48,7 @@ initial_state(Mode-F-CF-PF/S-CS-PS-Level,
               Mode-F-CF-PF/S-CS-PS-Level-[[[e,e,e,e],[e,e,e,e],[e,e,e,e],[e,e,e,e]],
                                             [[e,e,e,e],[e,e,e,e],[e,e,e,e],[e,e,e,e]],
                                             [[e,e,e,e],[e,e,e,e],[e,e,e,e],[e,e,e,e]],
-                                            [[e,e,e,e],[e,e,e,e],[e,e,e,e],[e,e,e,e]]]-F-CF-PF-PossibleMoves) :-
+                                            [[e,e,e,e],[e,e,e,e],[e,e,e,e],[e,e,e,e]]]-F-CF-_-PossibleMoves) :-
     var(GameState),
     Mode == '4x4'.
 
@@ -63,10 +63,10 @@ coordinates should start at (1,1) at the lower left corner.
 
 */
 
-display_game(Mode-F-CF-PF/S-CS-PS-Level-[]-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves).
-display_game(Mode-F-CF-PF/S-CS-PS-Level-[Head | Tail]-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves) :-
+display_game(Mode-F-CF-PF/S-CS-PS-Level-[]-CurrentPlayer-PlayerColor-_-PossibleMoves).
+display_game(Mode-F-CF-PF/S-CS-PS-Level-[Head | Tail]-CurrentPlayer-PlayerColor-_-PossibleMoves) :-
     write(Head), nl,
-    display_game(Mode-F-CF-PF/S-CS-PS-Level-Tail-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves).
+    display_game(Mode-F-CF-PF/S-CS-PS-Level-Tail-CurrentPlayer-PlayerColor-_-PossibleMoves).
 
 /*
 game_loop(+GameState)
@@ -102,14 +102,14 @@ game_loop(GameState) :-
 %    valid_moves(Mode-F-CF/S-CS-Level-Board-CurrentPlayer-PlayerColor-PossibleMoves, PossibleMoves),
 %    move(Mode-F-CF/S-CS-Level-Board-CurrentPlayer-PlayerColor-PossibleMoves, Move, NewGameState).
 
-turn('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, NewGameState) :-
-    nl, display_game('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves), nl, !, % after display game, cant go back
-    valid_moves('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, PossibleMoves),
-    choose_move('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, Level, OnePiece-DestRow/DestCol-n/n),
-    move('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, OnePiece-DestRow/DestCol-n/n, NewGameState).
+turn('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-_-PossibleMoves, NewGameState) :-
+    nl, display_game('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-_-PossibleMoves), nl, !, % after display game, cant go back
+    valid_moves('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerColor-PossibleMoves, PossibleMoves),
+    choose_move('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-_-PossibleMoves, Level, OnePiece-DestRow/DestCol-n/n),
+    move('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-_-PossibleMoves, OnePiece-DestRow/DestCol-n/n, NewGameState).
 
-next_player(Mode-F-CF-PF/S-CS-PS-Level-Board-F-CF-NewPF-PossibleMoves, Mode-F-CF-NewPF/S-CS-PS-Level-Board-S-CS-PS-NewPossibleMoves).
-next_player(Mode-F-CF-PF/S-CS-PS-Level-Board-S-CS-NewPS-PossibleMoves, Mode-F-CF-PF/S-CS-NewPS-Level-Board-F-CF-PF-NewPossibleMoves).
+next_player(Mode-F-CF-PF/S-CS-PS-Level-Board-F-CF-PlayerToMove-PossibleMoves, Mode-F-CF-PF/S-CS-PS-Level-Board-S-CS-PlayerToMove-NewPossibleMoves).
+next_player(Mode-F-CF-PF/S-CS-PS-Level-Board-S-CS-PlayerToMove-PossibleMoves, Mode-F-CF-PF/S-CS-PS-Level-Board-F-CF-PlayerToMove-NewPossibleMoves).
 
 /*
 game_over(+GameState, -Winner). 
@@ -119,7 +119,7 @@ whether the game is over, in which case it also identifies the winner (or draw).
 Note that this predicate should not print anything to the terminal.
 
 */
-game_over(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, Winner) :-
+game_over(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-_-PossibleMoves, Winner) :-
     game_over(Board, Winner).
 
 % vertical search
