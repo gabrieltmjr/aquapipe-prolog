@@ -40,7 +40,7 @@ initial_state(Mode-F-CF-PF/S-CS-PS-Level,
                                           [[e,e,e],[e,e,e],[e,e,e]],
                                           [[e,e,e],[e,e,e],[e,e,e]]]-F-CF-PF-PossibleMoves) :-
     var(GameState),
-    Mode == '3x3'.
+    Mode == '3x3' ; Mode == '3x3-O'.
 
 initial_state(Mode-F-CF-PF/S-CS-PS-Level, 
               Mode-F-CF-PF/S-CS-PS-Level-[[[e,e,e,e],[e,e,e,e],[e,e,e,e],[e,e,e,e]],
@@ -100,11 +100,11 @@ game_loop(GameState) :-
 %    valid_moves(Mode-F-CF/S-CS-Level-Board-CurrentPlayer-PlayerColor-PossibleMoves, PossibleMoves),
 %    move(Mode-F-CF/S-CS-Level-Board-CurrentPlayer-PlayerColor-PossibleMoves, Move, NewGameState).
 
-turn('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, NewGameState) :-
-    nl, display_game('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves), nl, !, % after display game, cant go back
-    valid_moves('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, PossibleMoves),
-    choose_move('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, Level, OnePiece-DestRow/DestCol-n/n),
-    move('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, OnePiece-DestRow/DestCol-n/n, NewGameState).
+turn(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, NewGameState) :-
+    nl, display_game(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves), nl, !, % after display game, cant go back
+    valid_moves(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, PossibleMoves),
+    choose_move(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, Level, OnePiece-DestRow/DestCol-n/n),
+    move(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, OnePiece-DestRow/DestCol-n/n, NewGameState).
 
 next_player(Mode-F-CF-PF/S-CS-PS-Level-Board-F-CF-NewPF-PossibleMoves, Mode-F-CF-NewPF/S-CS-PS-Level-Board-S-CS-PS-NewPossibleMoves).
 next_player(Mode-F-CF-PF/S-CS-PS-Level-Board-S-CS-NewPS-PossibleMoves, Mode-F-CF-PF/S-CS-NewPS-Level-Board-F-CF-PF-NewPossibleMoves).

@@ -49,6 +49,7 @@ During the game, the following rules apply:
 - Players may place one of their own pipes at any available space on the board or move one of their own pipes to another available space.
 - Player can only move a pipe on the board after he/she placed at least one each of the three size pipes.
 - Three different size pipes can be placed on the same space because of their structure.
+- **Optional Rule**: Each player can only move pieces in the board after placing all of his pieces in it (only in optional rule mode)
 - **Only in 4-in-a-row**: U-shaped pipes can be placed on two horizontal or two vertical spaces.
 
 #### Sources of Game Rules

@@ -28,13 +28,13 @@ Pipe: pipe PipeType (s, m, l, mup or lup)
 PipeIndex: pipe position in slot
 */
 pipe(Mode, s, 1) :-
-    Mode == '3x3' ; Mode == '4x4'.
+    Mode == '3x3' ; Mode == '3x3-O' ; Mode == '4x4'.
 
 pipe(Mode, m, 2) :-
-    Mode == '3x3' ; Mode == '4x4'.
+    Mode == '3x3' ; Mode == '3x3-O' ; Mode == '4x4'.
 
 pipe(Mode, l, 3) :-
-    Mode == '3x3' ; Mode == '4x4'.
+    Mode == '3x3' ; Mode == '3x3-O' ; Mode == '4x4'.
 
 pipe(Mode, mup, 4) :-
     Mode == '4x4'.
@@ -54,11 +54,11 @@ and (if the move is valid) returns the new game state after the move is executed
 */
 
 % if piece in board
-move('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, Player-Color-PipeType-PipeNumber-true-SrcRow/SrcCol-n/n-DestRow/DestCol-n/n, 
-    '3x3'-F-CF-PF/S-CS-PS-Level-NewBoard-CurrentPlayer-PlayerColor-NewPlayerPieces-PossibleMoves) :-
+move(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, Player-Color-PipeType-PipeNumber-true-SrcRow/SrcCol-n/n-DestRow/DestCol-n/n, 
+    Mode-F-CF-PF/S-CS-PS-Level-NewBoard-CurrentPlayer-PlayerColor-NewPlayerPieces-PossibleMoves) :-
     nth1(SrcRow, Board, RowForE), % Get row to replace with e
     nth1(SrcCol, RowForE, ColForE), % Get col to replace with e
-    pipe('3x3', PipeType, PipeIndex), % Get PipeIndex
+    pipe(Mode, PipeType, PipeIndex), % Get PipeIndex
     add_piece_to_board(ColForE, RowForE, Board, SrcCol, SrcRow, e, PipeIndex, AuxBoard), % Add e to board
     nth1(DestRow, AuxBoard, Row_), % Get row to change
     nth1(DestCol, Row_, Col_), % Get pos to change
@@ -67,11 +67,11 @@ move('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-Po
     nth0(Pos, NewPlayerPieces, Player-Color-PipeType-PipeNumber-true-DestRow/DestCol-n/n, RemainingPieces). % Update piece position in board
 
 % If piece not in board
-move('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, Player-Color-PipeType-PipeNumber-false-n/n-n/n-DestRow/DestCol-n/n, 
-    '3x3'-F-CF-PF/S-CS-PS-Level-NewBoard-CurrentPlayer-PlayerColor-NewPlayerPieces-PossibleMoves) :-
+move(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, Player-Color-PipeType-PipeNumber-false-n/n-n/n-DestRow/DestCol-n/n, 
+    Mode-F-CF-PF/S-CS-PS-Level-NewBoard-CurrentPlayer-PlayerColor-NewPlayerPieces-PossibleMoves) :-
     nth1(DestRow, Board, Row_), % Get row to change
     nth1(DestCol, Row_, Col_), % Get pos to change
-    pipe('3x3', PipeType, PipeIndex), % Get PipeIndex
+    pipe(Mode, PipeType, PipeIndex), % Get PipeIndex
     add_piece_to_board(Col_, Row_, Board, DestCol, DestRow, Player-Color-PipeType-PipeNumber-false, PipeIndex, NewBoard), !, % Cut - no backtrack after moving (because of game_over)
     nth0(Pos, PlayerPieces, Player-Color-PipeType-PipeNumber-false-n/n-n/n, RemainingPieces), % Remove old piece
     nth0(Pos, NewPlayerPieces, Player-Color-PipeType-PipeNumber-true-DestRow/DestCol-n/n, RemainingPieces). % Add new piece to say its in board and with position in board
@@ -89,7 +89,7 @@ considering the evaluation of the game state as determined by the value/3 predic
 For human players, it should interact with the user to read the move.
 */
 
-choose_move('3x3'-F-CF-PF/S-CS-PS-Level-Board-h-PlayerColor-PlayerPieces-PossibleMoves, Level, h-PlayerColor-PipeType-PipeNumber-InBoard-SrcRow/SrcCol-n/n-DestRow/DestCol-n/n) :-
+choose_move(Mode-F-CF-PF/S-CS-PS-Level-Board-h-PlayerColor-PlayerPieces-PossibleMoves, Level, h-PlayerColor-PipeType-PipeNumber-InBoard-SrcRow/SrcCol-n/n-DestRow/DestCol-n/n) :-
     repeat,
     format("Your pieces: ~w\n", [PlayerPieces]), nl,
     format("~w, Choose a piece to move and destination in the format: pipeType-pipeNumber-destinationRow-destinationColumn:\n", [h]),
@@ -98,16 +98,16 @@ choose_move('3x3'-F-CF-PF/S-CS-PS-Level-Board-h-PlayerColor-PlayerPieces-Possibl
     
 
 % PC Level 1 - Random
-choose_move('3x3'-F-CF-PF/S-CS-PS-random-Board-pc-PlayerColor-PlayerPieces-PossibleMoves, random, Move) :-
+choose_move(Mode-F-CF-PF/S-CS-PS-random-Board-pc-PlayerColor-PlayerPieces-PossibleMoves, random, Move) :-
     write('pc makes a move!'), nl,
     random_member(Move, PossibleMoves).
 
 :- include('greedy.pl').
 
 % PC Level 2 - Greedy
-choose_move('3x3'-F-CF-PF/S-CS-PS-greedy-Board-pc-PlayerColor-PlayerPieces-PossibleMoves, greedy, Move) :-
+choose_move(Mode-F-CF-PF/S-CS-PS-greedy-Board-pc-PlayerColor-PlayerPieces-PossibleMoves, greedy, Move) :-
     write('pc makes a greedy move!'), nl,
-    evaluate_moves(PlayerColor, '3x3'-F-CF-PF/S-CS-PS-greedy-Board-pc-PlayerColor-PlayerPieces-PossibleMoves, PossibleMoves, [], EvaluatedMoves),
+    evaluate_moves(PlayerColor, Mode-F-CF-PF/S-CS-PS-greedy-Board-pc-PlayerColor-PlayerPieces-PossibleMoves, PossibleMoves, [], EvaluatedMoves),
     best_move(EvaluatedMoves, Move).
 
 /*
@@ -159,22 +159,43 @@ Move: valid move that can be executed
 */
 
 % If at least 3 pieces of each type are in the board already for the current player, according to rules of the game
-valid_move('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, _CP-_PC-_PT-_PN-_IB-_SR/_SC-n/n-DestRow/DestCol-n/n) :-
+valid_move(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, _CP-_PC-_PT-_PN-_IB-_SR/_SC-n/n-DestRow/DestCol-n/n) :-
+    Mode == '3x3',
     member(_-_-s-_-true-_/_-_/_, PlayerPieces),
     member(_-_-m-_-true-_/_-_/_, PlayerPieces),
     member(_-_-l-_-true-_/_-_/_, PlayerPieces),
     nth0(_, PlayerPieces, _CP-_PC-_PT-_PN-_IB-_SR/_SC-n/n), % Check all pieces
-    pipe('3x3', _PT, PipeIndex), % Check if empty spot matches piece type
+    pipe(Mode, _PT, PipeIndex), % Check if empty spot matches piece type
+    nth1(DestRow, Board, Row_), % Search for empty spot
+    nth1(DestCol, Row_, Col_), % S
+    nth1(PipeIndex, Col_, Value), % S
+    Value == e. % S
+
+% Optional Rule - Each player can only move pieces in the board after placing all of his pieces in it
+valid_move(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, _CP-_PC-_PT-_PN-_IB-_SR/_SC-n/n-DestRow/DestCol-n/n) :-
+    Mode == '3x3-O',
+    member(_-_-s-1-true-_/_-_/_, PlayerPieces),
+    member(_-_-s-2-true-_/_-_/_, PlayerPieces),
+    member(_-_-s-3-true-_/_-_/_, PlayerPieces),
+    member(_-_-m-1-true-_/_-_/_, PlayerPieces),
+    member(_-_-m-2-true-_/_-_/_, PlayerPieces),
+    member(_-_-m-3-true-_/_-_/_, PlayerPieces),
+    member(_-_-l-1-true-_/_-_/_, PlayerPieces),
+    member(_-_-l-2-true-_/_-_/_, PlayerPieces),
+    member(_-_-l-3-true-_/_-_/_, PlayerPieces),
+    nth0(_, PlayerPieces, _CP-_PC-_PT-_PN-_IB-_SR/_SC-n/n), % Check all pieces
+    pipe(Mode, _PT, PipeIndex), % Check if empty spot matches piece type
     nth1(DestRow, Board, Row_), % Search for empty spot
     nth1(DestCol, Row_, Col_), % S
     nth1(PipeIndex, Col_, Value), % S
     Value == e. % S
 
 % If there are not at least 3 pieces of each type in board for the current player
-valid_move('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, 
+valid_move(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, 
             _CP-_PC-_PT-_PN-false-n/n-n/n-DestRow/DestCol-n/n) :-
+    (Mode == '3x3' ; Mode == '3x3-O'),
     nth0(_, PlayerPieces, _CP-_PC-_PT-_PN-false-n/n-n/n), % Get all pieces not in board
-    pipe('3x3', _PT, PipeIndex), % Check if empty spot matches piece type
+    pipe(Mode, _PT, PipeIndex), % Check if empty spot matches piece type
     nth1(DestRow, Board, Row_), % Search for empty spot
     nth1(DestCol, Row_, Col_), % S
     nth1(PipeIndex, Col_, Value), % S

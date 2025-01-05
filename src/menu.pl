@@ -23,7 +23,7 @@ menu(1, Mode, F-CF-PF/S-CS-PS, Level) :- % Play mode
     repeat,
     write('Choose the game mode you want to play, by writing a number between 1 and 2:'), nl,
     write('1. 3x3'), nl,
-    write('2. 4x4'), nl,
+    write('2. 3x3 - Optional Rule'), nl,
     read(Option),
     gameMode(Option, Mode),
     menu(2, Mode, F-CF-PF/S-CS-PS, Level).
@@ -44,14 +44,14 @@ menu(2, Mode, F-CF-PF/S-CS-PS, Level) :-
 menu(9, _, _, _). % Exit
 
 gameMode(1, '3x3').
-gameMode(2, '4x4').
+gameMode(2, '3x3-O').
 
-playerMode(1, '3x3', h-blue-PF/h-red-PS, none) :-
-    playerPieces('3x3', h, blue, PF),
-    playerPieces('3x3', h, red, PS).
+playerMode(1, Mode, h-blue-PF/h-red-PS, none) :-
+    playerPieces(Mode, h, blue, PF),
+    playerPieces(Mode, h, red, PS).
 
-playerMode(Option, '3x3', Players, Level) :-
-    playerModeOp(Option, '3x3', Players),
+playerMode(Option, Mode, Players, Level) :-
+    playerModeOp(Option, Mode, Players),
     write('Choose the level of the PC, by writing a number between 1 and 3:'), nl,
     write('1. Random'), nl,
     write('2. Greedy'), nl,
@@ -59,17 +59,17 @@ playerMode(Option, '3x3', Players, Level) :-
     read(Option3),
     level(Option3, Level).
 
-playerModeOp(2, '3x3', h-blue-PF/pc-red-PS) :-
-    playerPieces('3x3', h, blue, PF),
-    playerPieces('3x3', pc, red, PS).
+playerModeOp(2, Mode, h-blue-PF/pc-red-PS) :-
+    playerPieces(Mode, h, blue, PF),
+    playerPieces(Mode, pc, red, PS).
 
-playerModeOp(3, '3x3', pc-blue-PF/h-red-PS) :-
-    playerPieces('3x3', pc, blue, PF),
-    playerPieces('3x3', h, red, PS).
+playerModeOp(3, Mode, pc-blue-PF/h-red-PS) :-
+    playerPieces(Mode, pc, blue, PF),
+    playerPieces(Mode, h, red, PS).
 
-playerModeOp(4, '3x3', pc-blue-PF/pc-red-PS) :-
-    playerPieces('3x3', pc, blue, PF),
-    playerPieces('3x3', pc, red, PS).
+playerModeOp(4, Mode, pc-blue-PF/pc-red-PS) :-
+    playerPieces(Mode, pc, blue, PF),
+    playerPieces(Mode, pc, red, PS).
 
 level(1, random).
 level(2, greedy).

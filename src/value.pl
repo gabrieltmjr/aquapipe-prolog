@@ -52,7 +52,7 @@ For the following value calculation, we look at the following terminology:
 
 % Transposes the given Board matrix.
 % cols(+Board, -Cols)
-cols('3x3', Board, Cols) :-
+cols(Mode, Board, Cols) :-
     Board = [[A, B, C], [D, E, F], [G, H, I]],
     Cols = [[A, D, G], [B, E, H], [C, F, I]].
 
@@ -67,7 +67,7 @@ cols('4x4', Board, Cols) :-
             [D, H, L, P]].
 
 % diags(+Mode, +Board, -Diags)
-diags('3x3', Board, [Diag1, Diag2]) :-
+diags(Mode, Board, [Diag1, Diag2]) :-
     Board = [[A, _, C],
             [_, E, _],
             [G, _, I]],
@@ -106,8 +106,8 @@ match_player(Player, _-Player-_-_).
 % compute_value(+Mode, +PipeCount, -Value)
 compute_value(_, 1, 1).
 
-compute_value('3x3', 2, 4).
-compute_value('3x3', 3, 10).
+compute_value(Mode, 2, 4).
+compute_value(Mode, 3, 10).
 
 compute_value('4x4', 2, 2).
 compute_value('4x4', 3, 4).
@@ -135,14 +135,14 @@ sum_list([H|T], Sum) :-
 
 % For a given Line, calculates all scores of that Line's Slots, and returns the sum of those scores.
 % score(+Mode, +Player, +Opponent, +Line, -Score)
-score('3x3', Player, Opponent, Line, Score) :-
+score(Mode, Player, Opponent, Line, Score) :-
     Line = [[A, B, C],
             [D, E, F],
             [G, H, I]],
     AllSlots = [[A, D, G],
                 [B, E, H],
                 [C, F, I]],
-    findall(SlotScore, (member(Slot, AllSlots), slot_score('3x3', Player, Opponent, Slot, SlotScore)), SlotScores),
+    findall(SlotScore, (member(Slot, AllSlots), slot_score(Mode, Player, Opponent, Slot, SlotScore)), SlotScores),
     sum_list(SlotScores, Score).
 
 score('4x4', Player, Opponent, Line, Score) :-
