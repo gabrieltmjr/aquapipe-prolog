@@ -43,28 +43,76 @@ and (if the move is valid) returns the new game state after the move is executed
 
 */
 
+% update_piece_list(+GameState, +PlayerColor, +NewPieceList, -GameState)
+% Receives a GameState, the Player who moved and their new pieces, and
+% updates that player's piece list in the GameState.
+update_piece_list(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-_-PossibleMoves,
+                CF,
+                NewPF,
+                Mode-F-CF-NewPF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-_-PossibleMoves). % If CF moved, we update PlayerToMove accordingly.
+update_piece_list(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-_-PossibleMoves,
+                CS,
+                NewPS,
+                Mode-F-CF-PF/S-CS-NewPS-Level-Board-CurrentPlayer-PlayerColor-_-PossibleMoves). % If CS moved, we udpate PlayerToMove.
+
+% extract_piece_list(+GameState, +PlayerColor, -PlayerPieceList)
+% Given a GameState and a Player Color, returns the list of Pieces belonging
+% to that player. 
+extract_piece_list(_-_-CF-PF/_-CS-PS-_-_-_-_-_-_, CF, PF).
+extract_piece_list(_-_-CF-PF/_-CS-PS-_-_-_-_-_-_, CS, PS).
+
 % if piece in board
-move(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, Player-Color-PipeType-PipeNumber-true-SrcRow/SrcCol-DestRow/DestCol, 
-    Mode-F-CF-PF/S-CS-PS-Level-NewBoard-CurrentPlayer-PlayerColor-NewPlayerPieces-PossibleMoves) :-
+move(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-_-PossibleMoves,
+     Player-Color-PipeType-PipeNumber-true-SrcRow/SrcCol-DestRow/DestCol,
+     NewGameState) :-
+   
     nth1(SrcRow, Board, RowForE), % Get row to replace with e
     nth1(SrcCol, RowForE, ColForE), % Get col to replace with e
+    
     pipe(Mode, PipeType, PipeIndex), % Get PipeIndex
+    
     add_piece_to_board(ColForE, RowForE, Board, SrcCol, SrcRow, e, PipeIndex, AuxBoard), % Add e to board
+    
     nth1(DestRow, AuxBoard, Row_), % Get row to change
     nth1(DestCol, Row_, Col_), % Get pos to change
+    
     add_piece_to_board(Col_, Row_, AuxBoard, DestCol, DestRow, Player-Color-PipeType-PipeNumber-true, PipeIndex, NewBoard), !, % Cut - no backtrack after moving (because of game_over)
+    
+    extract_piece_list(Mode-F-CF-PF/S-CS-PS-Level-NewBoard-CurrentPlayer-PlayerColor-_-PossibleMoves,
+                    Color,
+                    PlayerPieces),
+                 
     nth0(Pos, PlayerPieces, Player-Color-PipeType-PipeNumber-true-SrcRow/SrcCol, RemainingPieces), % Remove old piece
-    nth0(Pos, NewPlayerPieces, Player-Color-PipeType-PipeNumber-true-DestRow/DestCol, RemainingPieces). % Update piece position in board
+    nth0(Pos, NewPlayerPieces, Player-Color-PipeType-PipeNumber-true-DestRow/DestCol, RemainingPieces), % Update piece position in board
+    
+    update_piece_list(Mode-F-CF-PF/S-CS-PS-Level-NewBoard-CurrentPlayer-PlayerColor-_-PossibleMoves,
+                    Color,
+                    NewPlayerPieces,
+                    NewGameState).
 
 % If piece not in board
-move(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, Player-Color-PipeType-PipeNumber-false-n/n-DestRow/DestCol, 
-    Mode-F-CF-PF/S-CS-PS-Level-NewBoard-CurrentPlayer-PlayerColor-NewPlayerPieces-PossibleMoves) :-
+move(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-_-PossibleMoves,
+     Player-Color-PipeType-PipeNumber-false-n/n-DestRow/DestCol, 
+     NewGameState) :-
+    
     nth1(DestRow, Board, Row_), % Get row to change
     nth1(DestCol, Row_, Col_), % Get pos to change
+    
     pipe(Mode, PipeType, PipeIndex), % Get PipeIndex
+    
     add_piece_to_board(Col_, Row_, Board, DestCol, DestRow, Player-Color-PipeType-PipeNumber-false, PipeIndex, NewBoard), !, % Cut - no backtrack after moving (because of game_over)
+    
+    extract_piece_list('3x3'-F-CF-PF/S-CS-PS-Level-NewBoard-CurrentPlayer-PlayerColor-_-PossibleMoves,
+                        Color,
+                        PlayerPieces),
+    
     nth0(Pos, PlayerPieces, Player-Color-PipeType-PipeNumber-false-n/n, RemainingPieces), % Remove old piece
-    nth0(Pos, NewPlayerPieces, Player-Color-PipeType-PipeNumber-true-DestRow/DestCol, RemainingPieces). % Add new piece to say its in board and with position in board
+    nth0(Pos, NewPlayerPieces, Player-Color-PipeType-PipeNumber-true-DestRow/DestCol, RemainingPieces), % Add new piece to say its in board and with position in board
+    
+    update_piece_list('3x3'-F-CF-PF/S-CS-PS-Level-NewBoard-CurrentPlayer-PlayerColor-_-PossibleMoves,
+                    Color,
+                    NewPlayerPieces,
+                    NewGameState).
 /*
 
 choose_move(+GameState, +Level, -Move). 
@@ -79,26 +127,41 @@ considering the evaluation of the game state as determined by the value/3 predic
 For human players, it should interact with the user to read the move.
 */
 
-choose_move(Mode-F-CF-PF/S-CS-PS-Level-Board-h-PlayerColor-PlayerPieces-PossibleMoves, Level, h-PlayerColor-PipeType-PipeNumber-InBoard-SrcRow/SrcCol-DestRow/DestCol) :-
+choose_move(Mode-F-CF-PF/S-CS-PS-Level-Board-h-PlayerColor-_-PossibleMoves, Level, h-PlayerColor-PipeType-PipeNumber-InBoard-SrcRow/SrcCol-DestRow/DestCol) :-
     repeat,
-    format("Your pieces: ~w\n", [PlayerPieces]), nl,
+    extract_piece_list('3x3'-F-CF-PF/S-CS-PS-Level-Board-h-PlayerColor-_-PossibleMoves,
+                        PlayerColor,
+                        PlayerPieces_),
+    format("Your pieces: ~w\n", [PlayerPieces_]), nl,
     format("~w, Choose a piece to move and destination in the format: pipeType-pipeNumber-destinationRow-destinationColumn:\n", [h]),
     read(PipeType-PipeNumber-DestRow-DestCol), nl,
     member(h-PlayerColor-PipeType-PipeNumber-InBoard-SrcRow/SrcCol-DestRow/DestCol, PossibleMoves).
     
 
 % PC Level 1 - Random
-choose_move(Mode-F-CF-PF/S-CS-PS-random-Board-pc-PlayerColor-PlayerPieces-PossibleMoves, random, Move) :-
+choose_move(Mode-F-CF-PF/S-CS-PS-random-Board-pc-PlayerColor-_-PossibleMoves, random, Move) :-
     write('pc makes a move!'), nl,
     random_member(Move, PossibleMoves).
 
 :- include('greedy.pl').
 
 % PC Level 2 - Greedy
-choose_move(Mode-F-CF-PF/S-CS-PS-greedy-Board-pc-PlayerColor-PlayerPieces-PossibleMoves, greedy, Move) :-
+choose_move(Mode-F-CF-PF/S-CS-PS-greedy-Board-pc-PlayerColor-_-PossibleMoves, greedy, Move) :-
     write('pc makes a greedy move!'), nl,
-    evaluate_moves(PlayerColor, Mode-F-CF-PF/S-CS-PS-greedy-Board-pc-PlayerColor-PlayerPieces-PossibleMoves, PossibleMoves, [], EvaluatedMoves),
+    evaluate_moves(PlayerColor, Mode-F-CF-PF/S-CS-PS-greedy-Board-pc-PlayerColor-_-PossibleMoves, PossibleMoves, [], EvaluatedMoves),
     best_move(EvaluatedMoves, Move).
+
+:- include('minimax.pl').
+
+% PC Level 3 - Minimax
+choose_move('3x3'-F-CF-PF/S-CS-PS-minimax-Board-pc-PlayerColor-_-PossibleMoves, minimax, Move) :-
+    write('minimax pc makes a move!'), nl,
+    minimax('3x3'-F-CF-PF/S-CS-PS-minimax-Board-pc-PlayerColor-PlayerColor-PossibleMoves,
+            2,
+            PlayerColor,
+            PlayerColor,
+            Move,
+            BestValue).
 
 /*
 add_piece_to_board(+Col, +Row, +Board, +ColIndex, +RowIndex, +Piece, +PieceIndex, -NewBoard)
@@ -149,7 +212,10 @@ Move: valid move that can be executed
 */
 
 % If at least 3 pieces of each type are in the board already for the current player, according to rules of the game
-valid_move(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, _CP-_PC-_PT-_PN-_IB-_SR/_SC-DestRow/DestCol) :-
+valid_move(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerToMove-PossibleMoves, _CP-_PC-_PT-_PN-_IB-_SR/_SC-DestRow/DestCol) :-
+    extract_piece_list('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-_-PossibleMoves,
+                        PlayerToMove,
+                        PlayerPieces),
     Mode == '3x3',
     member(_-_-s-_-true-_/_, PlayerPieces),
     member(_-_-m-_-true-_/_, PlayerPieces),
@@ -162,7 +228,10 @@ valid_move(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPiec
     Value == e. % S
 
 % Optional Rule - Each player can only move pieces in the board after placing all of his pieces in it
-valid_move(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, _CP-_PC-_PT-_PN-_IB-_SR/_SC-DestRow/DestCol) :-
+valid_move(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerToMove-PossibleMoves, _CP-_PC-_PT-_PN-_IB-_SR/_SC-DestRow/DestCol) :-
+    extract_piece_list('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-_-PossibleMoves,
+                        PlayerToMove,
+                        PlayerPieces),
     Mode == '3x3-O',
     member(_-_-s-1-true-_/_, PlayerPieces),
     member(_-_-s-2-true-_/_, PlayerPieces),
@@ -181,8 +250,11 @@ valid_move(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPiec
     Value == e. % S
 
 % If there are not at least 3 pieces of each type in board for the current player
-valid_move(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, 
+valid_move(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerToMove-PossibleMoves, 
             _CP-_PC-_PT-_PN-false-n/n-DestRow/DestCol) :-
+    extract_piece_list('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-_-PossibleMoves,
+                        PlayerToMove,
+                        PlayerPieces),
     (Mode == '3x3' ; Mode == '3x3-O'),
     nth0(_, PlayerPieces, _CP-_PC-_PT-_PN-false-n/n), % Get all pieces not in board
     pipe(Mode, _PT, PipeIndex), % Check if empty spot matches piece type
@@ -202,8 +274,8 @@ GameState: current state of the game
 ListOfMoves: list with all valid moves
 */
 
-valid_moves(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, ListOfMoves) :-
-    findall(Move, valid_move(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, Move), ListOfMoves).
+valid_moves(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerToMove-PossibleMoves, ListOfMoves) :-
+    findall(Move, valid_move(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerToMove-PossibleMoves, Move), ListOfMoves).
 
 /*
 append_at(+List, +Index, +Count, +Elem, -AccList, -NewList)

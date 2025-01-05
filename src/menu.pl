@@ -1,5 +1,4 @@
 :- include('game.pl').
-:- include('move.pl').
 
 /*
 Piece Representation: CurrentPlayer-PlayerColor-PipeType-PipeNumber-InBoard-RowInBoard/ColInBoard
