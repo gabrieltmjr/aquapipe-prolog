@@ -35,6 +35,8 @@ pieces yet to be played, or any other information that may be required, dependin
 
 */
 
+:- include('move.pl').
+
 initial_state(Mode-F-CF-PF/S-CS-PS-Level,
               Mode-F-CF-PF/S-CS-PS-Level-[[[e,e,e],[e,e,e],[e,e,e]],
                                           [[e,e,e],[e,e,e],[e,e,e]],

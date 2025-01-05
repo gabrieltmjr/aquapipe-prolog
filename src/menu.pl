@@ -1,5 +1,4 @@
 :- include('game.pl').
-:- include('move.pl').
 
 /*
 Menu
