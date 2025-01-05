@@ -8,7 +8,7 @@ Players (or F-CF-PF/S-CS-PS) - Can be h-blue/h-red, h-blue/pc-red, pc-blue/h-red
 where h -> Human, pc -> Computer and blue/red is the color of the pieces of a player
 Level - represents the level of the PC, it can be Random, Greedy or Minimax
 
-Game State Representation: Mode-F-CF-PF/S-CS-PS-Level-Board-P-CP-PossibleMoves, where:
+Game State Representation: Mode-F-CF-PF/S-CS-PS-Level-Board-P-CP-PlayerToMove-PossibleMoves, where:
 
 Mode - One of the 2 Game Modes of AquaPipe: 3x3 or 3x3-O
 F & CF & PF  - First Player, F (h or pc) with color blue (CF - Color F) and pieces of Player F (PF)
@@ -17,7 +17,7 @@ Level - represents the level of the PC, it can be Random, Greedy or Minimax
 Board - Bi-dimensional list of 3x3 or 3x3-O size, depends on Game Mode
 P - Player to play on the current turn (F on the first turn)
 CP - Color of player P
-AvaliablePieces - the pieces that Player P can play
+PlayerToMove - the color of the player that attempted the last move
 PossibleMoves - list with the moves that can be made by P on the current game state
 
 */
@@ -38,6 +38,8 @@ GameState - The game state according to the configuration
 
 */
 
+:- include('move.pl').
+
 initial_state(Mode-F-CF-PF/S-CS-PS-Level,
               Mode-F-CF-PF/S-CS-PS-Level-[[[e,e,e],[e,e,e],[e,e,e]],
                                           [[e,e,e],[e,e,e],[e,e,e]],
@@ -56,10 +58,10 @@ It uses tail recursion to print each row in the board.
 
 */
 
-display_game(Mode-F-CF-PF/S-CS-PS-Level-[]-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves).
-display_game(Mode-F-CF-PF/S-CS-PS-Level-[CurrentRow | RestOfBoard]-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves) :-
+display_game(Mode-F-CF-PF/S-CS-PS-Level-[]-CurrentPlayer-PlayerColor-_-PossibleMoves).
+display_game(Mode-F-CF-PF/S-CS-PS-Level-[CurrentRow | RestOfBoard]-CurrentPlayer-PlayerColor-_-PossibleMoves) :-
     write(CurrentRow), nl,
-    display_game(Mode-F-CF-PF/S-CS-PS-Level-RestOfBoard-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves).
+    display_game(Mode-F-CF-PF/S-CS-PS-Level-RestOfBoard-CurrentPlayer-PlayerColor-_-PossibleMoves).
 
 /*
 game_loop(+GameState)
@@ -108,14 +110,14 @@ GameState - the current state of the game
 NewGameState - the new game state after the move
 */
 
-turn(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, NewGameState) :-
-    nl, display_game(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves), nl, !, % after display game, cant go back
-    valid_moves(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, PossibleMoves),
-    choose_move(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, Level, OnePiece-DestRow/DestCol),
-    move(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, OnePiece-DestRow/DestCol, NewGameState).
+turn(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-_-PossibleMoves, NewGameState) :-
+    nl, display_game(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-_-PossibleMoves), nl, !, % after display game, cant go back
+    valid_moves(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerColor-PossibleMoves, PossibleMoves),
+    choose_move(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-_-PossibleMoves, Level, OnePiece-DestRow/DestCol),
+    move(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-_-PossibleMoves, OnePiece-DestRow/DestCol, NewGameState).
 
-next_player(Mode-F-CF-PF/S-CS-PS-Level-Board-F-CF-NewPF-PossibleMoves, Mode-F-CF-NewPF/S-CS-PS-Level-Board-S-CS-PS-NewPossibleMoves).
-next_player(Mode-F-CF-PF/S-CS-PS-Level-Board-S-CS-NewPS-PossibleMoves, Mode-F-CF-PF/S-CS-NewPS-Level-Board-F-CF-PF-NewPossibleMoves).
+next_player(Mode-F-CF-PF/S-CS-PS-Level-Board-F-CF-PlayerToMove-PossibleMoves, Mode-F-CF-PF/S-CS-PS-Level-Board-S-CS-PlayerToMove-NewPossibleMoves).
+next_player(Mode-F-CF-PF/S-CS-PS-Level-Board-S-CS-PlayerToMove-PossibleMoves, Mode-F-CF-PF/S-CS-PS-Level-Board-F-CF-PlayerToMove-NewPossibleMoves).
 
 /*
 game_over(+GameState, -Winner). 
@@ -130,7 +132,7 @@ GameState - the current state of the game
 Winner - The winner of the game in the format Player-Color (i.e. h-red)
 
 */
-game_over(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerPieces-PossibleMoves, Winner) :-
+game_over(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-_-PossibleMoves, Winner) :-
     game_over(Board, Winner).
 
 % vertical search
