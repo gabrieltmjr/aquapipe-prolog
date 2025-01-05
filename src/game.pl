@@ -3,18 +3,18 @@ Game
 
 Game Configuration Representation: Mode-Players-Level, where:
 
-Mode - One of the 2 Game Modes of AquaPipe: 3x3 or 4x4
+Mode - One of the 2 Game Modes of AquaPipe: 3x3 or 3x3-O
 Players (or F-CF-PF/S-CS-PS) - Can be h-blue/h-red, h-blue/pc-red, pc-blue/h-red, pc-blue/pc-red, 
 where h -> Human, pc -> Computer and blue/red is the color of the pieces of a player
 Level - represents the level of the PC, it can be Random, Greedy or Minimax
 
 Game State Representation: Mode-F-CF-PF/S-CS-PS-Level-Board-P-CP-PlayerToMove-PossibleMoves, where:
 
-Mode - One of the 2 Game Modes of AquaPipe: 3x3 or 4x4
+Mode - One of the 2 Game Modes of AquaPipe: 3x3 or 3x3-O
 F & CF & PF  - First Player, F (h or pc) with color blue (CF - Color F) and pieces of Player F (PF)
 S & CS & PS - Second Player, S (h or pc) with color red (CS - Color S), and pieces of Player S (PS)
 Level - represents the level of the PC, it can be Random, Greedy or Minimax
-Board - Bi-dimensional list of 3x3 or 4x4 size, depends on Game Mode
+Board - Bi-dimensional list of 3x3 or 3x3-O size, depends on Game Mode
 P - Player to play on the current turn (F on the first turn)
 CP - Color of player P
 PlayerToMove - the color of the player that attempted the last move
@@ -33,6 +33,9 @@ The game state describes a snapshot of the current game state, including board c
 identifies the current player (the one playing next), and possibly captured pieces and/or
 pieces yet to be played, or any other information that may be required, depending on the game.
 
+GameConfig - The given configuration of the game
+GameState - The game state according to the configuration
+
 */
 
 :- include('move.pl').
@@ -40,18 +43,8 @@ pieces yet to be played, or any other information that may be required, dependin
 initial_state(Mode-F-CF-PF/S-CS-PS-Level,
               Mode-F-CF-PF/S-CS-PS-Level-[[[e,e,e],[e,e,e],[e,e,e]],
                                           [[e,e,e],[e,e,e],[e,e,e]],
-                                          [[e,e,e],[e,e,e],[e,e,e]]]-F-CF-_-PossibleMoves) :-
-    var(GameState),
-    Mode == '3x3'.
-
-initial_state(Mode-F-CF-PF/S-CS-PS-Level, 
-              Mode-F-CF-PF/S-CS-PS-Level-[[[e,e,e,e],[e,e,e,e],[e,e,e,e],[e,e,e,e]],
-                                            [[e,e,e,e],[e,e,e,e],[e,e,e,e],[e,e,e,e]],
-                                            [[e,e,e,e],[e,e,e,e],[e,e,e,e],[e,e,e,e]],
-                                            [[e,e,e,e],[e,e,e,e],[e,e,e,e],[e,e,e,e]]]-F-CF-_-PossibleMoves) :-
-    var(GameState),
-    Mode == '4x4'.
-
+                                          [[e,e,e],[e,e,e],[e,e,e]]]-F-CF-PF-PossibleMoves) :-
+    Mode == '3x3' ; Mode == '3x3-O'.
 /*
 display_game(+GameState). 
 
@@ -59,14 +52,16 @@ This predicate receives the current game state (including the player who will ma
 and prints the game state to the terminal. Appealing and intuitive visualizations will be valued. 
 Flexible game state representations and visualization predicates will also be valued, 
 for instance those that work with any board size. For uniformization purposes, 
-coordinates should start at (1,1) at the lower left corner.
+coordinates should start at (1,1) at the lower left corner (Not done, coordinates start at upper left corner)
+
+It uses tail recursion to print each row in the board.
 
 */
 
 display_game(Mode-F-CF-PF/S-CS-PS-Level-[]-CurrentPlayer-PlayerColor-_-PossibleMoves).
-display_game(Mode-F-CF-PF/S-CS-PS-Level-[Head | Tail]-CurrentPlayer-PlayerColor-_-PossibleMoves) :-
-    write(Head), nl,
-    display_game(Mode-F-CF-PF/S-CS-PS-Level-Tail-CurrentPlayer-PlayerColor-_-PossibleMoves).
+display_game(Mode-F-CF-PF/S-CS-PS-Level-[CurrentRow | RestOfBoard]-CurrentPlayer-PlayerColor-_-PossibleMoves) :-
+    write(CurrentRow), nl,
+    display_game(Mode-F-CF-PF/S-CS-PS-Level-RestOfBoard-CurrentPlayer-PlayerColor-_-PossibleMoves).
 
 /*
 game_loop(+GameState)
@@ -74,6 +69,8 @@ game_loop(+GameState)
 This predicate manages the GameState by allowing the players to
 take turns in playing. It also checks if one of the players won the game,
 or if it ended in a draw.
+
+GameState - the current state the of the game
 */
 
 game_loop(GameState) :-
@@ -102,11 +99,22 @@ game_loop(GameState) :-
 %    valid_moves(Mode-F-CF/S-CS-Level-Board-CurrentPlayer-PlayerColor-PossibleMoves, PossibleMoves),
 %    move(Mode-F-CF/S-CS-Level-Board-CurrentPlayer-PlayerColor-PossibleMoves, Move, NewGameState).
 
-turn('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-_-PossibleMoves, NewGameState) :-
-    nl, display_game('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-_-PossibleMoves), nl, !, % after display game, cant go back
-    valid_moves('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerColor-PossibleMoves, PossibleMoves),
-    choose_move('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-_-PossibleMoves, Level, OnePiece-DestRow/DestCol-n/n),
-    move('3x3'-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-_-PossibleMoves, OnePiece-DestRow/DestCol-n/n, NewGameState).
+/*
+turn(+GameState, -NewGameState)
+
+This predicate recieves the current GameState, and according to which value CurrenPlayer has, 
+it processes what the player does in a move: display the game state, generate the valid moves, choose a move and make it.
+The computer chooses the move according to Level.
+
+GameState - the current state of the game
+NewGameState - the new game state after the move
+*/
+
+turn(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-_-PossibleMoves, NewGameState) :-
+    nl, display_game(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-_-PossibleMoves), nl, !, % after display game, cant go back
+    valid_moves(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-PlayerColor-PossibleMoves, PossibleMoves),
+    choose_move(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-_-PossibleMoves, Level, OnePiece-DestRow/DestCol),
+    move(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-_-PossibleMoves, OnePiece-DestRow/DestCol, NewGameState).
 
 next_player(Mode-F-CF-PF/S-CS-PS-Level-Board-F-CF-PlayerToMove-PossibleMoves, Mode-F-CF-PF/S-CS-PS-Level-Board-S-CS-PlayerToMove-NewPossibleMoves).
 next_player(Mode-F-CF-PF/S-CS-PS-Level-Board-S-CS-PlayerToMove-PossibleMoves, Mode-F-CF-PF/S-CS-PS-Level-Board-F-CF-PlayerToMove-NewPossibleMoves).
@@ -117,6 +125,11 @@ game_over(+GameState, -Winner).
 This predicate receives the current game state, and verifies
 whether the game is over, in which case it also identifies the winner (or draw). 
 Note that this predicate should not print anything to the terminal.
+
+It matches a possible win board state for each piece, vertically, horizontally or diagonally, according to the board in the GameState
+
+GameState - the current state of the game
+Winner - The winner of the game in the format Player-Color (i.e. h-red)
 
 */
 game_over(Mode-F-CF-PF/S-CS-PS-Level-Board-CurrentPlayer-PlayerColor-_-PossibleMoves, Winner) :-

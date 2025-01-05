@@ -12,16 +12,6 @@ Value of a Game State to a given player:
         - 2 pipes and no enemy pipes: 4 points.
         - 3 pipes and no enemy pipes (game is won): 10 points.
 
-- For 4x4:
-    Now, three of the same color and size on the same line does not win the game. Four of these, however, does.
-    Moreover, a line of 4 can be achieved.
-    
-    Thus, we adjust the scores a little:
-        - 1 pipe and no enemy pipes: 1 point.
-        - 2 pipes and no enemy pipes: 2 points.
-        - 3 pipes and no enemy pipes: 4 points.
-        - 4 pipes and no enemy pipes (game is won): 16 points.
-
 The score calculation will contemplate all relevant aforementioned line configurations.
 The current player's lines will add a positive value to the score, and the opposite player's will add a negative value.
 This means that a score of 0 is a perfectly neutral board.
@@ -52,39 +42,17 @@ For the following value calculation, we look at the following terminology:
 
 % Transposes the given Board matrix.
 % cols(+Board, -Cols)
-cols('3x3', Board, Cols) :-
+cols(Mode, Board, Cols) :-
     Board = [[A, B, C], [D, E, F], [G, H, I]],
     Cols = [[A, D, G], [B, E, H], [C, F, I]].
 
-cols('4x4', Board, Cols) :-
-    Board = [[A, B, C, D],
-            [E, F, G, H],
-            [I, J, K, L],
-            [M, N, O, P]],
-    Cols = [[A, E, I, M],
-            [B, F, J, N],
-            [C, G, K, O],
-            [D, H, L, P]].
-
 % diags(+Mode, +Board, -Diags)
-diags('3x3', Board, [Diag1, Diag2]) :-
+diags(Mode, Board, [Diag1, Diag2]) :-
     Board = [[A, _, C],
             [_, E, _],
             [G, _, I]],
     Diag1 = [A, E, I],
     Diag2 = [C, E, G].
-
-diags('4x4', Board, [Diag1, Diag2, Diag3, Diag4, Diag5, Diag6]) :-
-    Board = [[A, B, C, D],
-            [E, F, G, H],
-            [I, J, K, L],
-            [M, N, O, P]],
-    Diag1 = [E, J, O],
-    Diag2 = [A, F, K, P],
-    Diag3 = [B, G, L],
-    Diag4 = [C, F, I],
-    Diag5 = [D, G, J, M],
-    Diag6 = [H, K, N].
 
 % Creates an array containing each `Line` (Row, Column, Diagonal) of a given Board.
 % Each Line array is comprised of Slots, each slot is in turn an array that contains
@@ -106,12 +74,8 @@ match_player(Player, _-Player-_-_).
 % compute_value(+Mode, +PipeCount, -Value)
 compute_value(_, 1, 1).
 
-compute_value('3x3', 2, 4).
-compute_value('3x3', 3, 10).
-
-compute_value('4x4', 2, 2).
-compute_value('4x4', 3, 4).
-compute_value('4x4', 4, 16).
+compute_value(Mode, 2, 4).
+compute_value(Mode, 3, 10).
 
 :- use_module(library(lists)).
 
@@ -135,26 +99,14 @@ sum_list([H|T], Sum) :-
 
 % For a given Line, calculates all scores of that Line's Slots, and returns the sum of those scores.
 % score(+Mode, +Player, +Opponent, +Line, -Score)
-score('3x3', Player, Opponent, Line, Score) :-
+score(Mode, Player, Opponent, Line, Score) :-
     Line = [[A, B, C],
             [D, E, F],
             [G, H, I]],
     AllSlots = [[A, D, G],
                 [B, E, H],
                 [C, F, I]],
-    findall(SlotScore, (member(Slot, AllSlots), slot_score('3x3', Player, Opponent, Slot, SlotScore)), SlotScores),
-    sum_list(SlotScores, Score).
-
-score('4x4', Player, Opponent, Line, Score) :-
-    Line = [[A, B, C, D],
-            [E, F, G, H],
-            [I, J, K, L],
-            [M, N, O, P]],
-    AllSlots = [[A, E, I, M],
-                [B, F, J, N],
-                [C, G, K, O],
-                [D, H, L, P]],
-    findall(SlotScore, (member(Slot, AllSlots), slot_score('4x4', Player, Opponent, Slot, Slotscore)), SlotScores),
+    findall(SlotScore, (member(Slot, AllSlots), slot_score(Mode, Player, Opponent, Slot, SlotScore)), SlotScores),
     sum_list(SlotScores, Score).
 
 % Returns the color of the opposite player, given the color of the current one.
